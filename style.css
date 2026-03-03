@@ -1,0 +1,74 @@
+/* This is a CSS comment */
+
+body { 
+  /* heading container asking if phillies won */
+  .heading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color : rgb(232, 24, 40); /*phillies red color*/
+    font-size: 50px;
+    font-family: "cursive", "Comic Sans MS", cursive, sans-serif;
+  }
+
+  /* powder blue formatting */
+
+  .powder-blue {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
+    background-color: rgb(116, 179, 230); /*phillies powder blue color*/
+    color : rgb(232, 24, 40); /*phillies red color*/
+    font-size: 10vw;
+    font-weight: bold;
+  }  
+
+  /* pinstripes formatting */
+
+  .pinstripes {
+    display: flex;
+    /*background-image: repeating-linear-gradient(0deg, red, blue 7%, green 10%);*/
+    background-image: repeating-linear-gradient(to right, white, white 50px, rgb(232, 24, 40) 50px,  rgb(232, 24, 40) 52px);
+    justify-content: center;
+    align-items: center;
+    border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
+    font-size: 10vw;
+    font-weight: bold;
+    /*background-color: rgb(255, 255, 255);*/ /*white background for pinstripes*/
+    color:rgb(232, 24, 40);
+  }
+  .grey {
+    display: flex;
+    background-color: rgb(161, 161, 161); /*grey color*/
+    justify-content: center;
+    align-items: center;
+    border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
+    color : rgb(232, 24, 40); /*phillies red color*/
+    font-size: 10vw;
+    font-weight: bold;
+    }
+
+  /* City connected formatting */
+  .city-connect {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(to bottom, rgb(2, 24, 57), rgb(93, 119, 159));
+    border: 20px, solid yellow; /*phillies red border*/
+    color : yellow; /*phillies red color*/
+    font-size: 10vw;
+    font-weight: bold;
+  }
+  /* Creme color formatting */
+  .creme {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(255, 253, 208); /*creme color*/
+    border: 20px, solid rgb(0, 45, 114); /*phillies red border*/
+    color : rgb(232, 24, 40); /*phillies red color*/
+    font-size: 10vw;
+    font-weight: bold;
+}
+}
