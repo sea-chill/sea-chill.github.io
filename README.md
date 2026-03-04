@@ -1,2 +1,2 @@
 # sea-chill.github.io
-Website that shows via yes or no if the phillies won today
+Website that shows if the phillies won today with a simple yes or no
