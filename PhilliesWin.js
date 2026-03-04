@@ -223,29 +223,7 @@ async function runDailyReport() {
           gameMinute = localTime.getMinutes();
           gameAMPM = gameHour >= 12 ? "PM" : "AM";
           const formattedHour = gameHour % 12 || 12; /*convert to 12 hour format*/
-          /*const formattedTime = localTime.toLocaleString([], {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit'
-          });*/
           const firstPitch = `${formattedHour}:${String(gameMinute).padStart(2, "0")} ${gameAMPM}`;
-
-
-
-          /*gameDateLocal = new Date(gameDateUTC.getTime() + (gameDateUTC.getTimezoneOffset() * 60000));
-          gameHour = gameDateLocal.getHours();
-          gameMinute = gameDateLocal.getMinutes();
-          gameAMPM = gameHour >= 12 ? "PM" : "AM";
-          if (gameHour > 12) {
-            gameHour -= 12;
-          }
-          if (gameHour === 0) {
-            gameHour = 12;
-          }
-          const formattedTime = `${gameHour}:${String(gameMinute).padStart(2, "0")} ${gameAMPM}`;*/
 
           if (gameCount == 2 && i == 0) {
             let philliesResultElementOne = document.getElementById("phillies-gameOne-result"); 
