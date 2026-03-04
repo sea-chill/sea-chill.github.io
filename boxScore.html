@@ -218,7 +218,6 @@ function buildLineScore(lineData, boxData) {
 
     ["away", "home"].forEach(side => {
         html += `<tr><td>${boxData.teams[side].team.teamName}</td>`;
-        /*html += `<tr><td>${boxData.teams.away.team.teamName}</td>`;*/
 
         lineData.innings.forEach(inning => {
             html += `<td>${inning[side].runs ?? 0}</td>`;
@@ -243,24 +242,20 @@ function displayFullGame(boxData, lineData, liveData) {
     const phillies = home.team.id === 143 ? home : away;
     const opponent = home.team.id === 143 ? away : home;
 
-    /*const formattedDate = formatDate(boxData.gameData.datetime.originalDate);
-    const formattedTime = formatTime(boxData.gameData.datetime.dateTime);
-    const venue = boxData.gameData.venue.name;
-    const attendance = boxData.gameData.gameInfo.attendance || "N/A";*/
+    /*const attendance = boxData.gameData.gameInfo.attendance || "N/A";*/
+
     const today = new Date();
     formattedDate = today.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric"
     });
-    /*formattedTime = "1:05 PM";*/
-    /*venue = "Spectrum Field";*/
-    /*const venue = schedAPI.dates?.games[0]?.venue?.name || "N/A";*/
+   
     /*attendance = "N/A";*/
 
     document.title = `Phillies Box Score - ${formattedDate}`;
     document.getElementById("pageTitle").innerText =
-        `Phillies Game Box Score - ${formattedDate}`;
+        `Phillies Box Score - ${formattedDate}`;
 
     /*document.getElementById("gameInfo").innerHTML =
         `${formattedTime} | ${venue} | Attendance: ${attendance}`;*/
@@ -314,6 +309,10 @@ function displayFullGame(boxData, lineData, liveData) {
 loadGameData();
 
 </script>
+
+<button onclick="window.location.href='index.html'">
+  Return to Did the Phillies Win Today?
+</button>
 
 </body>
 </html>

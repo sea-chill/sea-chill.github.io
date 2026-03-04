@@ -215,19 +215,51 @@ async function runDailyReport() {
           break;
         case "Pre-Game":
         case "Scheduled":
+          /*get time of first pitch and convert to local time for output.  This is in ISO format in the API so it is in UTC time.  I will need to convert it to local time for the output.  I will also need to account for the date change if the game is at night and the local time is the next day. */
+
+          gameDateUTC = new Date(scheduleData.dates[0].games[i].gameDate);
+          const localTime = new Date(gameDateUTC);
+          gameHour = localTime.getHours(); /*update game hour to be in local time for the background and text color function.  This is because the game hour in UTC time may be different than the game hour in local time, which could affect the uniform color and background color on the website. */
+          gameMinute = localTime.getMinutes();
+          gameAMPM = gameHour >= 12 ? "PM" : "AM";
+          const formattedHour = gameHour % 12 || 12; /*convert to 12 hour format*/
+          /*const formattedTime = localTime.toLocaleString([], {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+          });*/
+          const firstPitch = `${formattedHour}:${String(gameMinute).padStart(2, "0")} ${gameAMPM}`;
+
+
+
+          /*gameDateLocal = new Date(gameDateUTC.getTime() + (gameDateUTC.getTimezoneOffset() * 60000));
+          gameHour = gameDateLocal.getHours();
+          gameMinute = gameDateLocal.getMinutes();
+          gameAMPM = gameHour >= 12 ? "PM" : "AM";
+          if (gameHour > 12) {
+            gameHour -= 12;
+          }
+          if (gameHour === 0) {
+            gameHour = 12;
+          }
+          const formattedTime = `${gameHour}:${String(gameMinute).padStart(2, "0")} ${gameAMPM}`;*/
+
           if (gameCount == 2 && i == 0) {
             let philliesResultElementOne = document.getElementById("phillies-gameOne-result"); 
-            philliesResultElementOne.textContent = "Game 1 has not started yet";
+            philliesResultElementOne.textContent = `Game 1 has not started yet. First pitch is at ${firstPitch}`;
             let philliesResultElementTwo = document.getElementById("phillies-gameTwo-result"); 
             philliesResultElementTwo.textContent = "Game 2 has not started yet";
           }
           else if (gameCount == 2 && i == 1) {
             let philliesResultElementTwo = document.getElementById("phillies-gameTwo-result"); 
-            philliesResultElementTwo.textContent = "Game 2 has not started yet"
+            philliesResultElementTwo.textContent = `Game 2 has not started yet. First pitch is at ${firstPitch}`
           }
           else {
             let philliesResultElementOne = document.getElementById("phillies-gameOne-result"); 
-            philliesResultElementOne.textContent = "Phillies have a game scheduled today, but it has not started yet";
+            philliesResultElementOne.textContent = `Phillies have a game scheduled today, but it has not started yet. First pitch is at ${firstPitch}`;
             let philliesResultElementTwo = document.getElementById("phillies-gameTwo-result");
             philliesResultElementTwo.textContent = null;
           }
