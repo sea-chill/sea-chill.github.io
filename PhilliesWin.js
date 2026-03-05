@@ -1,6 +1,6 @@
 /* Did the Philadelphia Phillies win today?
  This script checks if the Phillies won on the current date (even with a doubleheader) and
- Special messages on certain days (coming soon)
+ Special messages on certain days
  this script also sets the background and text color to match the Phllies uniform colors that day*/
 /* Get the index for day of week (sunday = 0, monday = 1, etc.) */
 /* this function is so the background and text correspond to the Phillies colors that day */
@@ -356,5 +356,4 @@ async function runDailyReport() {
   }
 }
 }
-
 runDailyReport().catch(console.error);
