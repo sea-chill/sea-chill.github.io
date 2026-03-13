@@ -174,7 +174,7 @@ async function runDailyReport() {
         philliesGameTwoElement.textContent = null;
       }
 
-      const gameStatus = games[i].status.detailedState; /*this is the status of the first or second game.  
+      const gameStatus = games[i].status.abstractGameState; /*this is the status of the first or second game.  
         If there is a doubleheader, there will be two games in the games array.  
         If there is only one game, there will be one game in the games array.  
         If there are no games, there will be no games in the games array.*/
