@@ -1,74 +1,106 @@
-/* This is a CSS comment */
+body{
+font-family:Arial;
+margin:0;
+text-align:center;
+}
 
-body { 
-  /* heading container asking if phillies won */
-  .heading-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color : rgb(232, 24, 40); /*phillies red color*/
-    font-size: 50px;
-    font-family: "cursive", "Comic Sans MS", cursive, sans-serif;
-  }
+/* PAGE WRAPPER */
 
-  /* powder blue formatting */
+#phillies-color{
+max-width:1000px;
+margin:auto;
+padding:20px;
+}
 
-  .powder-blue {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* LOGOS */
+
+.logos{
+display:flex;
+justify-content:center;
+gap:40px;
+margin-bottom:20px;
+}
+
+.logos img{
+height:80px;
+}
+
+/* LINEUP CARDS */
+
+.lineup-container{
+display:flex;
+justify-content:center;
+gap:60px;
+}
+
+.lineup-card{
+width:350px;
+border:1px solid #ccc;
+padding:15px;
+border-radius:6px;
+}
+
+/* TABLE */
+
+.lineup-table{
+width:100%;
+border-collapse:collapse;
+}
+
+.lineup-table th{
+border-bottom:2px solid #888;
+padding:6px;
+}
+
+.lineup-table td{
+padding:6px;
+border-bottom:1px solid #ddd;
+}
+
+/* PITCHER */
+
+.pitcher{
+font-weight:bold;
+margin-bottom:10px;
+}
+
+/* UNIFORM THEMES */
+
+.pinstripes{
+    background-image: repeating-linear-gradient(to right, white, white 50px, rgb(232, 24, 40) 50px,  rgb(232, 24, 40) 52px);
+    border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
+    color:rgb(232, 24, 40); /*phillies red color*/
+}
+
+.powder-blue{
     border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
     background-color: rgb(116, 179, 230); /*phillies powder blue color*/
     color : rgb(232, 24, 40); /*phillies red color*/
-    font-size: 10vw;
-    font-weight: bold;
-  }  
+}
 
-  /* pinstripes formatting */
-
-  .pinstripes {
-    display: flex;
-    /*background-image: repeating-linear-gradient(0deg, red, blue 7%, green 10%);*/
-    background-image: repeating-linear-gradient(to right, white, white 50px, rgb(232, 24, 40) 50px,  rgb(232, 24, 40) 52px);
-    justify-content: center;
-    align-items: center;
-    border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
-    font-size: 10vw;
-    font-weight: bold;
-    /*background-color: rgb(255, 255, 255);*/ /*white background for pinstripes*/
-    color:rgb(232, 24, 40);
-  }
-  .grey {
-    display: flex;
-    background-color: rgb(161, 161, 161); /*grey color*/
-    justify-content: center;
-    align-items: center;
-    border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
-    color : rgb(232, 24, 40); /*phillies red color*/
-    font-size: 10vw;
-    font-weight: bold;
-    }
-
-  /* City connected formatting */
-  .city-connect {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.city-connect{
     background-image: linear-gradient(to bottom, rgb(2, 24, 57), rgb(93, 119, 159));
     border: 20px, solid yellow; /*phillies red border*/
-    color : yellow; /*phillies red color*/
-    font-size: 10vw;
-    font-weight: bold;
-  }
-  /* Creme color formatting */
-  .creme {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    color : yellow; /*phillies red color*/   
+}
+
+.creme{
     background-color: rgb(255, 253, 208); /*creme color*/
     border: 20px, solid rgb(0, 45, 114); /*phillies red border*/
     color : rgb(232, 24, 40); /*phillies red color*/
-    font-size: 10vw;
-    font-weight: bold;
 }
+
+.grey{
+    background-color: rgb(161, 161, 161); /*grey color*/
+    border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
+    color : rgb(232, 24, 40); /*phillies red color*/
+}
+
+/* Win or Lose styleing */
+
+.winOrLose {
+    justify-content: center;
+    align-items: center;
+    font-size: 10vw;
+    font-weight: bold; 
 }

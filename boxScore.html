@@ -2,19 +2,20 @@
 <html>
 <head>
     <title>Phillies Box Score</title>
+    <link rel="stylesheet" href="style.css">
 
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #0c2340;
-            color: white;
+            /*background-color: #0c2340;*/
+            /*color: white;*/
             padding: 20px;
             text-align: center;
         }
 
-        h1 {
+        /*h1 {
             color: #e81828;
-        }
+        }*/
 
         .info {
             margin-bottom: 15px;
@@ -73,12 +74,55 @@
 
 <body>
 
-<h1 id="pageTitle">Phillies Box Score</h1>
-<div class="info" id="gameInfo"></div>
-<div id="logos" class="logos"></div>
-<div id="boxscore"></div>
+<div id="phillies-color">
+    <h1 id="pageTitle">Phillies Box Score</h1>
+    <div class="info" id="gameInfo"></div>
+    <div id="logos" class="logos"></div>
+    <div id="boxscore"></div>
+</div>
 
 <script>
+
+/* Day of week */
+
+function getDayOfWeek(){
+    return new Date().getDay();
+}
+
+/* UNIFORM STYLE */
+
+function backgroundAndTextColor(homeGame,gameHour){
+
+    const element = document.getElementById("phillies-color");
+
+    let stateClass;
+
+    const dayOfWeek = getDayOfWeek();
+
+    if(dayOfWeek===4){
+
+        stateClass="powder-blue";
+
+    }else if(dayOfWeek===5 && homeGame){
+
+        stateClass="city-connect";
+
+    }else if(gameHour<18 && homeGame){
+
+        stateClass="creme";
+
+    }else if(homeGame){
+
+        stateClass="pinstripes";
+
+    }else{
+
+        stateClass="grey";
+
+    }
+
+    element.classList.add(stateClass);
+}
 
 /*const gamePk = 831533; */
 
@@ -93,12 +137,14 @@ async function loadGameData() {
     const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${today}`;
     const res = await fetch(url);
     const schedAPI = await res.json();
-    /*const url = fetch(`https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${today}`);
-    const res = await res.json();`*/
-    /*const game = res.dates[0]?.games || [];*/
-    /*const venue = game[0]?.venue?.name || "N/A";*/
-    /*const gamePk = String(games[0]?.gamePk) || null;*/
     const gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
+
+    const TEAM_ID = 143;
+    const game=schedAPI.dates[0].games[0];
+    const isHomeGame=game.teams.home.team.id===TEAM_ID;
+    const gameHour=new Date(game.gameDate).getHours();
+
+    backgroundAndTextColor(isHomeGame,gameHour);
 
     const [boxRes, lineRes, liveRes] = await Promise.all([
         fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`),

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Phillies Lineup Card</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div id="phillies-color">
+
+    <h1>Starting Lineups</h1>
+
+    <div id="logos" class="logos"></div>
+
+    <div class="lineup-container">
+
+        <div class="lineup-card">
+
+            <h2>Phillies</h2>
+
+            <div id="philliesPitcher" class="pitcher"></div>
+
+            <table class="lineup-table">
+            <thead>
+            <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Pos</th>
+            </tr>
+            </thead>
+            <tbody id="philliesLineup"></tbody>
+            </table>
+
+        </div>
+
+        <div class="lineup-card">
+
+            <h2 id="otherTeam"></h2>
+
+            <div id="opponentPitcher" class="pitcher"></div>
+
+            <table class="lineup-table">
+            <thead>
+            <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Pos</th>
+            </tr>
+            </thead>
+            <tbody id="opponentLineup"></tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const TEAM_ID = 143;
+
+/* DATE */
+
+function getTodayDate(){
+
+    const today = new Date();
+
+    const year = today.getFullYear();
+    const month = String(today.getMonth()+1).padStart(2,"0");
+    const day = String(today.getDate()).padStart(2,"0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function getDayOfWeek(){
+    return new Date().getDay();
+}
+
+/* UNIFORM STYLE */
+
+function backgroundAndTextColor(homeGame,gameHour){
+
+    const element = document.getElementById("phillies-color");
+
+    let stateClass;
+
+    const dayOfWeek = getDayOfWeek();
+
+    if(dayOfWeek===4){
+
+        stateClass="powder-blue";
+
+    }else if(dayOfWeek===5 && homeGame){
+
+        stateClass="city-connect";
+
+    }else if(gameHour<18 && homeGame){
+
+        stateClass="creme";
+
+    }else if(homeGame){
+
+        stateClass="pinstripes";
+
+    }else{
+
+        stateClass="grey";
+
+    }
+
+    element.classList.add(stateClass);
+}
+
+/* FETCH GAME */
+
+async function fetchGamePk(){
+
+    const date = getTodayDate();
+
+    const url=`https://statsapi.mlb.com/api/v1/schedule?teamId=${TEAM_ID}&sportId=1&date=${date}`;
+
+    const res=await fetch(url);
+
+    const data=await res.json();
+
+    if(!data.dates.length){
+
+        document.body.innerHTML="No Phillies game today.";
+
+        return null;
+    }
+
+    const game=data.dates[0].games[0];
+
+    const isHomeGame=game.teams.home.team.id===TEAM_ID;
+
+    const gameHour=new Date(game.gameDate).getHours();
+
+    backgroundAndTextColor(isHomeGame,gameHour);
+
+    return game.gamePk;
+}
+
+/* LOAD LINEUPS */
+
+async function loadLineups(){
+
+    const gamePk=await fetchGamePk();
+
+    if(!gamePk) return;
+
+    const url=`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`;
+
+    const res=await fetch(url);
+
+    const data=await res.json();
+
+    const home=data.teams.home;
+    const away=data.teams.away;
+
+    const phillies=home.team.id===TEAM_ID?home:away;
+    const opponent=home.team.id===TEAM_ID?away:home;
+
+    /* LOGOS */
+
+    document.getElementById("logos").innerHTML=`
+    <img src="https://www.mlbstatic.com/team-logos/${phillies.team.id}.svg">
+    <img src="https://www.mlbstatic.com/team-logos/${opponent.team.id}.svg">
+    `;
+
+    /* Other Team Info */
+
+    /*let versus = opponent.team.clubName;*/
+    const versus = document.getElementById('otherTeam');
+    versus.textContent = opponent.team.clubName;
+
+    /* STARTING PITCHERS */
+
+    const philliesSP=phillies.pitchers[0];
+    const opponentSP=opponent.pitchers[0];
+
+    document.getElementById("philliesPitcher").innerText=
+    "SP: #"+phillies.players["ID"+philliesSP].jerseyNumber+
+    " "+phillies.players["ID"+philliesSP].person.fullName;
+
+    document.getElementById("opponentPitcher").innerText=
+    "SP: #"+opponent.players["ID"+opponentSP].jerseyNumber+
+    " "+opponent.players["ID"+opponentSP].person.fullName;
+
+    /* LINEUP TABLE */
+
+    function renderLineup(team,element){
+
+    const lineup=team.battingOrder;
+
+    lineup.forEach((playerId,i)=>{
+
+    const player=team.players["ID"+playerId];
+
+    const number=player.jerseyNumber||"";
+    const name=player.person.fullName;
+    const pos=player.position.abbreviation;
+
+    const row=`
+    <tr>
+    <td>${i+1}</td>
+    <td>#${number} ${name}</td>
+    <td>${pos}</td>
+    </tr>
+    `;
+
+    document.getElementById(element).insertAdjacentHTML("beforeend",row);
+
+    });
+
+    }
+
+    renderLineup(phillies,"philliesLineup");
+    renderLineup(opponent,"opponentLineup");
+
+}
+
+loadLineups();
+
+</script>
+
+<button onclick="window.location.href='index.html'">
+  Return to Did the Phillies Win Today?
+</button>
+
+</body>
+</html>
