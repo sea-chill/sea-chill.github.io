@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Phillies Schedule</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(255, 253, 208); /*creme color*/
+            border: 20px, solid rgb(0, 45, 114); /*phillies red border*/
+            color : rgb(232, 24, 40); /*phillies red color*/
+            padding: 20px;
+            text-align: center;
+        }
+
+        .schedule-Container {
+            display: flex;
+            justify-content: center;
+            gap:60px;
+            overflow-x: auto; /* Adds horizontal scrolling only when the content overflows */
+        }
+
+        .schedule-Table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .pitcher-Table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+    </style>
+ </head>
+
+<body>
+
+    <button onclick="window.location.href='index.html'">
+    Return to Did the Phillies Win Today?
+    </button>
+
+    <h1>2026 Philadelphia Phillies Schedule</h1>
+    <p class = "h2" id="philsRecord"></p>
+
+    <div class="schedule-Container">
+        <table class="schedule-Table">
+            <thead>
+                <tr>
+                <th>Day</th>
+                <th>Date</th>
+                <th>Opponent</th>
+                <th>Record</th>
+                <th>Home/Away</th>
+                <th>Result/Score</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleTable"></tbody>
+        </table>
+    </div>
+    <br>
+    <button onclick="window.location.href='index.html'">
+    Return to Did the Phillies Win Today?
+    </button>
+
+<script>
+
+/*Get Schedule Data*/
+
+async function loadScheduleData() {
+
+    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=143&startDate=2026-03-28&endDate=2026-09-30`;
+    const res =await fetch(url);
+    const schedAPI =await res.json();
+
+        const games = schedAPI.dates.flatMap(date => date.games);
+        /*let record = "N/A";
+        let resultScore = "TBD";*/
+    
+        games.forEach((game, i) => {
+            const gameDate = new Date(game.gameDate);
+            const day = gameDate.toLocaleDateString('en-US', { weekday: 'long' });
+            const date = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const opponent = game.teams.home.team.id === 143 ? game.teams.away.team.name : game.teams.home.team.name;
+            const homeAway = game.teams.home.team.id === 143 ? "Home" : "Away";
+            const record = game.teams.home.team.id === 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
+            const philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
+            const resultScore = game.status.abstractGameCode === "F" ? `${game.teams.home.score}-${game.teams.away.score}` : "---";   
+       
+            const row=`
+            <tr>
+            <td>${day}</td>
+            <td>${date}</td>
+            <td>${opponent}</td>
+            <td>${record}</td>
+            <td>${homeAway}</td>
+            <td>${resultScore}</td>
+            </tr>
+            `;
+
+        document.getElementById("scheduleTable").insertAdjacentHTML("beforeend",row);
+        document.getElementById("philsRecord").innerText = `Phillies Record: ${philsRecord}`;
+      });
+}
+loadScheduleData();
+
+</script>
+
+</body>
+</html>
