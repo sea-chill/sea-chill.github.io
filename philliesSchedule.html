@@ -58,6 +58,7 @@
                 <tr>
                 <th>Day</th>
                 <th>Date</th>
+                <th>Time</th>
                 <th>Opponent</th>
                 <th>Record</th>
                 <th>Home/Away</th>
@@ -90,6 +91,7 @@ async function loadScheduleData() {
             const gameDate = new Date(game.gameDate);
             const day = gameDate.toLocaleDateString('en-US', { weekday: 'long' });
             const date = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
             const opponent = game.teams.home.team.id === 143 ? game.teams.away.team.name : game.teams.home.team.name;
             const homeAway = game.teams.home.team.id === 143 ? "Home" : "Away";
             const record = game.teams.home.team.id === 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
@@ -100,6 +102,7 @@ async function loadScheduleData() {
             <tr>
             <td>${day}</td>
             <td>${date}</td>
+            <td>${time}</td>
             <td>${opponent}</td>
             <td>${record}</td>
             <td>${homeAway}</td>
