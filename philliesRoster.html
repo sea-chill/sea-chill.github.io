@@ -50,10 +50,12 @@
     </button>
     <h1>Phillies Roster</h1>
 
+    <h2 class="table-Header">Hitters</h2>
+
     <div class="roster-Container">
         <table class="hitter-Table">
+
             <thead>
-                <th class="table-Header">Hitters</th>
                 <tr>
                 <th>Number</th>
                 <th>Name</th>
@@ -69,9 +71,13 @@
             </thead>
             <tbody id="hitterTable"></tbody>
         </table>
+    </div>
+
+    <h2 class="table-Header">Pitchers</h2>
+
+    <div class="roster-Container">
         <table class="pitcher-Table">
             <thead>
-                <th class="table-Header">Pitchers</th>
                 <tr>
                 <th>Number</th>
                 <th>Name</th>
@@ -142,12 +148,12 @@ async function fetchRoster(){
             <tr>
             <td>${data.roster[i].jerseyNumber}</td>
             <td>${data.roster[i].person.fullName}</td>
-            <td>${playerStats?.gamesPlayed || "N/A"}</td>
-            <td>${playerStats?.inningsPitched || "N/A"}</td>
-            <td>${playerStats?.wins || "N/A"}</td>
-            <td>${playerStats?.losses || "N/A"}</td>
-            <td>${playerStats?.era || "N/A"}</td>
-            <td>${playerStats?.strikeOuts || "N/A"}</td>
+            <td>${playerStats?.gamesPlayed || "0"}</td>
+            <td>${playerStats?.inningsPitched || "0.0"}</td>
+            <td>${playerStats?.wins || "0"}</td>
+            <td>${playerStats?.losses || "0"}</td>
+            <td>${playerStats?.era || "0.00"}</td>
+            <td>${playerStats?.strikeOuts || "0"}
             </tr>
             `;
 
@@ -164,13 +170,13 @@ async function fetchRoster(){
             <td>${data.roster[i].jerseyNumber}</td>
             <td>${data.roster[i].person.fullName}</td>
             <td>${data.roster[i].position.name}</td>
-            <td>${playerStats?.seasonStats.batting?.gamesPlayed || "N/A"}</td>
-            <td>${playerStats?.seasonStats.batting?.atBats || "N/A"}</td>
-            <td>${playerStats?.seasonStats.batting?.hits || "N/A"}</td>
-            <td>${playerStats?.seasonStats.batting?.runs || "N/A"}</td>
-            <td>${playerStats?.seasonStats.batting?.rbi || "N/A"}</td>
-            <td>${playerStats?.seasonStats.batting?.avg || "N/A"}</td>
-            <td>${playerStats?.seasonStats.batting?.homeRuns || "N/A"}</td>
+            <td>${playerStats?.seasonStats.batting?.gamesPlayed || "0"}</td>
+            <td>${playerStats?.seasonStats.batting?.atBats || "0"}</td>
+            <td>${playerStats?.seasonStats.batting?.hits || "0"}</td>
+            <td>${playerStats?.seasonStats.batting?.runs || "0"}</td>
+            <td>${playerStats?.seasonStats.batting?.rbi || "0"}</td>
+            <td>${playerStats?.seasonStats.batting?.avg || "0.000"}
+            <td>${playerStats?.seasonStats.batting?.homeRuns || "0"}</td>
             </tr>
             `;
 

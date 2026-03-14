@@ -131,7 +131,9 @@ async function fetchGamePk(){
 
     const data=await res.json();
 
-    if(!data.dates.length){
+    let numGames = data.dates[0].totalGames;
+
+    if(data.dates[0].totalGames=0){
 
         document.body.innerHTML="No Phillies game today.";
 
@@ -186,6 +188,12 @@ async function loadLineups(){
 
     const philliesSP=phillies.pitchers[0];
     const opponentSP=opponent.pitchers[0];
+
+    if (philliesSP.length === 0 || opponentSP.length === 0) {
+        document.getElementById("philliesPitcher").innerText = "Starting pitcher not announced yet.";
+        document.getElementById("opponentPitcher").innerText = "Starting pitcher not announced yet.";
+        return;
+    }
 
     document.getElementById("philliesPitcher").innerText=
     "SP: #"+phillies.players["ID"+philliesSP].jerseyNumber+

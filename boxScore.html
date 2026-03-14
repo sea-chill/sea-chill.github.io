@@ -80,6 +80,8 @@
     </button>
     <h1 id="pageTitle">Phillies Box Score</h1>
     <div class="info" id="gameInfo"></div>
+    <div class="info" id="timeInfo"></div>
+    <div class="info" id="weatherInfo"></div>  
     <div id="logos" class="logos"></div>
     <div id="boxscore"></div>
 </div>
@@ -257,6 +259,10 @@ function buildPitchingTable(team) {
 
 function buildLineScore(lineData, boxData) {
 
+    if (lineData.innings.length === 0) {
+        return "<p>Game has not started yet</p>";
+    }
+
     let html = `<h2>Line Score</h2><table><tr><th>Team</th>`;
 
     lineData.innings.forEach((inning, i) => {
@@ -284,6 +290,56 @@ function buildLineScore(lineData, boxData) {
 }
 
 function displayFullGame(boxData, lineData, liveData) {
+
+    let venue = "N/A";
+    let attendance = "N/A";
+    let firstPitch = "N/A";
+    let timeOfGame = "N/A";
+    let weather = "N/A";
+    let wind = "N/A";
+
+    boxData.info.forEach((info,i) => {
+        const label = info.label;
+        const xlabel = info.value;
+        if (info.label === "Venue") {
+            venue = info.value;
+        } else if (info.label === "Att") {
+            attendance = info.value;
+        } else if (info.label === "First pitch") {
+            firstPitch = info.value;
+        } else if (info.label === "T") {
+            timeOfGame = info.value;
+        } else if (info.label === "Weather") {
+            weather = info.value;
+        } else if (info.label === "Wind") {
+            wind = info.value;
+        }
+    });
+    
+    if (!attendance) {
+        attendance = "N/A";
+    }
+    if (!weather) {
+        weather = "N/A";
+    }
+    if (!wind) {
+        wind = "N/A";
+    }
+    if (!firstPitch) {
+        firstPitch = "N/A";
+    }
+    if (!timeOfGame) {
+        timeOfGame = "N/A";
+    }
+    if (!venue) {
+        venue = "N/A";
+    }
+    document.getElementById("gameInfo").innerText =
+        `${venue} | Attendance: ${attendance}`;
+    document.getElementById("weatherInfo").innerText =
+        `Weather: ${weather} | Wind: ${wind}`;
+    document.getElementById("timeInfo").innerText =
+        `First Pitch: ${firstPitch} | Time of Game: ${timeOfGame}`;
 
     const home = boxData.teams.home;
     const away = boxData.teams.away;
