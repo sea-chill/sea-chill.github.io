@@ -74,7 +74,6 @@
                 <tr>
                 <th>Number</th>
                 <th>Name</th>
-                <th>Pos</th>
                 <th>Games</th>
                 <th>IP</th>
                 <th>W</th>
@@ -142,7 +141,6 @@ async function fetchRoster(){
             <tr>
             <td>${data.roster[i].jerseyNumber}</td>
             <td>${data.roster[i].person.fullName}</td>
-            <td>${data.roster[i].position.name}</td>
             <td>${playerStats?.gamesPlayed || "N/A"}</td>
             <td>${playerStats?.inningsPitched || "N/A"}</td>
             <td>${playerStats?.wins || "N/A"}</td>
