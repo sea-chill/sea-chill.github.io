@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Phillies Roster</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(255, 253, 208); /*creme color*/
+            border: 20px, solid rgb(0, 45, 114); /*phillies red border*/
+            color : rgb(232, 24, 40); /*phillies red color*/
+            padding: 20px;
+            text-align: center;
+        }
+
+        .roster-Container {
+            display: flex;
+            justify-content: center;
+            gap:60px;
+        }
+
+        .hitter-Table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .pitcher-Table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+    </style>
+ </head>
+
+<body>
+
+    <button onclick="window.location.href='index.html'">
+    Return to Did the Phillies Win Today?
+    </button>
+    <h1>Phillies Roster</h1>
+    <h2>Position Players</h2>
+    <h2>Pitchers</h2>
+
+    <div class="roster-Container">
+        <table class="hitter-Table">
+            <thead>
+                <tr>
+                <th>Number</th>
+                <th>Name</th>
+                <th>Pos</th>
+                <th>Games</th>
+                <th>AB</th>
+                <th>Hits</th>
+                <th>Runs</th>
+                <th>RBI</th>
+                <th>AVG</th>
+                <th>HR</th>
+                </tr>
+            </thead>
+            <tbody id="hitterTable"></tbody>
+        </table>
+        <table class="pitcher-Table">
+            <thead>
+                <tr>
+                <th>Number</th>
+                <th>Name</th>
+                <th>Pos</th>
+                <th>Games</th>
+                <th>IP</th>
+                <th>W</th>
+                <th>L</th>
+                <th>ERA</th>
+                <th>SO</th>
+                </tr>
+            </thead>
+            <tbody id="pitcherTable"></tbody>
+    </div>
+
+<script>
+
+/*Get gamepk to use with box score api calls*/
+
+async function loadGameData() {
+
+    dayTime = new Date();
+    year = String(dayTime.getFullYear());
+    month = String(dayTime.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    day = String(dayTime.getDate()).padStart(2, "0");
+    let today = `${year}-${month}-${day}`;
+
+    const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${today}`;
+    const res = await fetch(url);
+    const schedAPI = await res.json();
+    const gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
+
+    return gamePk;
+}
+/* FETCH Roster */
+/* Background color will always be white, red, and blue in some fashing */
+
+async function fetchRoster(){
+
+    const gamePk = await loadGameData();
+
+    boxUrl = `https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`;
+    const boxres=await fetch(boxUrl);
+    const boxData=await boxres.json();
+
+    const url=`https://statsapi.mlb.com/api/v1/teams/143/roster`;
+    const res=await fetch(url);
+    const data=await res.json();
+
+    if(!data.roster.length){
+
+        document.body.innerHTML="No roster to show";
+
+        return null;
+    }
+
+    const teams=data.roster;
+
+    teams.forEach((person, i)=>{
+
+        let field = data.roster[i].position.name;
+        if (field === "Pitcher") {
+            let playerID = data.roster[i].person.id;
+            let playerStats = boxData.teams.home.players[`ID${playerID}`]?.seasonStats?.pitching;
+            if (!playerStats) {
+                playerStats = boxData.teams.away.players[`ID${playerID}`]?.seasonStats?.pitching;
+            }
+            const row=`
+            <tr>
+            <td>${data.roster[i].jerseyNumber}</td>
+            <td>${data.roster[i].person.fullName}</td>
+            <td>${data.roster[i].position.name}</td>
+            <td>${playerStats?.gamesPlayed || "N/A"}</td>
+            <td>${playerStats?.inningsPitched || "N/A"}</td>
+            <td>${playerStats?.wins || "N/A"}</td>
+            <td>${playerStats?.losses || "N/A"}</td>
+            <td>${playerStats?.era || "N/A"}</td>
+            <td>${playerStats?.strikeOuts || "N/A"}</td>
+            </tr>
+            `;
+
+            document.getElementById("pitcherTable").insertAdjacentHTML("beforeend",row);
+        } else {
+            let playerID = data.roster[i].person.id;
+            let playerStats = boxData.teams.home.players[`ID${playerID}`];
+            if (!playerStats) {
+                playerStats = boxData.teams.away.players[`ID${playerID}`];
+            }
+
+            const row=`
+            <tr>
+            <td>${data.roster[i].jerseyNumber}</td>
+            <td>${data.roster[i].person.fullName}</td>
+            <td>${data.roster[i].position.name}</td>
+            <td>${playerStats?.seasonStats.batting?.gamesPlayed || "N/A"}</td>
+            <td>${playerStats?.seasonStats.batting?.atBats || "N/A"}</td>
+            <td>${playerStats?.seasonStats.batting?.hits || "N/A"}</td>
+            <td>${playerStats?.seasonStats.batting?.runs || "N/A"}</td>
+            <td>${playerStats?.seasonStats.batting?.rbi || "N/A"}</td>
+            <td>${playerStats?.seasonStats.batting?.avg || "N/A"}</td>
+            <td>${playerStats?.seasonStats.batting?.homeRuns || "N/A"}</td>
+            </tr>
+            `;
+
+        document.getElementById("hitterTable").insertAdjacentHTML("beforeend",row);
+
+    }
+    });
+
+    return null;
+
+}
+
+fetchRoster();
+
+</script>
+
+</body>
+</html>
