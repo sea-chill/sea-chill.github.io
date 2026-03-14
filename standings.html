@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>National League East Standings</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(255, 253, 208); /*creme color*/
+            border: 20px, solid rgb(0, 45, 114); /*phillies red border*/
+            color : rgb(232, 24, 40); /*phillies red color*/
+            padding: 20px;
+            text-align: center;
+        }
+
+        /*h1 {
+            color: #e81828;
+        }*/
+
+        .standings-Container {
+            display: flex;
+            justify-content: center;
+            gap:60px;
+        }
+
+        .standings-Table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+    </style>
+ </head>
+
+<body>
+
+    <h1>National League East Standings</h1>
+
+    <div class="standings-Container">
+        <table class="standings-Table">
+            <thead>
+                <tr>
+                <th>Team</th>
+                <th>Wins</th>
+                <th>Losses</th>
+                <th>PCT</th>
+                <th>GB</th>
+                <th>WC GB</th>
+                </tr>
+            </thead>
+            <tbody id="standingsTable"></tbody>
+        </table>
+    </div>
+
+<script>
+
+/* FETCH Standings */
+/* Background color will always be white, red, and blue in some fashing */
+
+async function fetchStandings(){
+
+    const url=`https://statsapi.mlb.com/api/v1/standings?leagueId=104`;
+
+    const res=await fetch(url);
+
+    const data=await res.json();
+
+    if(!data.records[0].teamRecords.length){
+
+        document.body.innerHTML="No standings to show";
+
+        return null;
+    }
+
+    const teams=data.records[0].teamRecords;
+
+    teams.forEach(team=>{
+
+        const row=`
+        <tr>
+        <td>${team.team.name}</td>
+        <td>${team.leagueRecord.wins}</td>
+        <td>${team.leagueRecord.losses}</td>
+        <td>${team.leagueRecord.pct}</td>
+        <td>${team.divisionGamesBack}</td>
+        <td>${team.wildCardGamesBack}</td>
+        </tr>
+        `;
+
+        document.getElementById("standingsTable").insertAdjacentHTML("beforeend",row);
+
+    });
+
+    return null;
+}
+
+fetchStandings();
+
+</script>
+
+<br>
+<br>
+<button onclick="window.location.href='index.html'">
+  Return to Did the Phillies Win Today?
+</button>
+
+</body>
+</html>
