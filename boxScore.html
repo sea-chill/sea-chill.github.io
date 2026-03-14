@@ -316,30 +316,12 @@ function displayFullGame(boxData, lineData, liveData) {
         }
     });
     
-    if (!attendance) {
-        attendance = "N/A";
-    }
-    if (!weather) {
-        weather = "N/A";
-    }
-    if (!wind) {
-        wind = "N/A";
-    }
-    if (!firstPitch) {
-        firstPitch = "N/A";
-    }
-    if (!timeOfGame) {
-        timeOfGame = "N/A";
-    }
-    if (!venue) {
-        venue = "N/A";
-    }
     document.getElementById("gameInfo").innerText =
         `${venue} | Attendance: ${attendance}`;
     document.getElementById("weatherInfo").innerText =
         `Weather: ${weather} | Wind: ${wind}`;
     document.getElementById("timeInfo").innerText =
-        `First Pitch: ${firstPitch} | Time of Game: ${timeOfGame}`;
+        `First Pitch: ${firstPitch} | Duration: ${timeOfGame}`;
 
     const home = boxData.teams.home;
     const away = boxData.teams.away;
@@ -356,14 +338,9 @@ function displayFullGame(boxData, lineData, liveData) {
         day: "numeric"
     });
    
-    /*attendance = "N/A";*/
-
     document.title = `Phillies Box Score - ${formattedDate}`;
     document.getElementById("pageTitle").innerText =
         `Phillies Box Score - ${formattedDate}`;
-
-    /*document.getElementById("gameInfo").innerHTML =
-        `${formattedTime} | ${venue} | Attendance: ${attendance}`;*/
 
     // Logos
     document.getElementById("logos").innerHTML = `
