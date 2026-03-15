@@ -50,6 +50,8 @@
     </button>
     <h1>Phillies Roster</h1>
 
+    <h2 class="table-Header">Spring Training</h2>
+
     <h2 class="table-Header">Hitters</h2>
 
     <div class="roster-Container">
@@ -64,9 +66,9 @@
                 <th>AB</th>
                 <th>Hits</th>
                 <th>Runs</th>
+                <th>HR</th>
                 <th>RBI</th>
                 <th>AVG</th>
-                <th>HR</th>
                 </tr>
             </thead>
             <tbody id="hitterTable"></tbody>
@@ -94,35 +96,9 @@
 
 <script>
 
-/*Get gamepk to use with box score api calls*/
-
-async function loadGameData() {
-
-    dayTime = new Date();
-    year = String(dayTime.getFullYear());
-    month = String(dayTime.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    day = String(dayTime.getDate()).padStart(2, "0");
-    let today = `${year}-${month}-${day}`;
-
-    const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${today}`;
-    const res = await fetch(url);
-    const schedAPI = await res.json();
-    const gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
-
-    return gamePk;
-}
-/* FETCH Roster */
-/* Background color will always be white, red, and blue in some fashing */
-
 async function fetchRoster(){
 
-    const gamePk = await loadGameData();
-
-    boxUrl = `https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`;
-    const boxres=await fetch(boxUrl);
-    const boxData=await boxres.json();
-
-    const url=`https://statsapi.mlb.com/api/v1/teams/143/roster`;
+    const url=`https://statsapi.mlb.com/api/v1/teams/143/roster?rosterType=active`;
     const res=await fetch(url);
     const data=await res.json();
 
@@ -134,63 +110,81 @@ async function fetchRoster(){
     }
 
     const teams=data.roster;
+    rosterCount = teams.length;
+    
+    for(let i = 0; i < rosterCount; i++){
 
-    teams.forEach((person, i)=>{
+        let [gamesPlayed, atBats, hits, runs, rbi, avg, homeRuns, inningsPitched, wins, losses, era, strikeOuts] = [0,'--','--','--','--','--','--','--','--','--','--','--'];
+        
+        let playerID = data.roster[i]?.person.id;
+        let jersey = data.roster[i]?.jerseyNumber;
+        let name = data.roster[i]?.person.fullName;
+        let field = data.roster[i]?.position.name;
 
-        let field = data.roster[i].position.name;
-        if (field === "Pitcher") {
-            let playerID = data.roster[i].person.id;
-            let playerStats = boxData.teams.home.players[`ID${playerID}`]?.seasonStats?.pitching;
-            if (!playerStats) {
-                playerStats = boxData.teams.away.players[`ID${playerID}`]?.seasonStats?.pitching;
-            }
+        /*Game Type idenfier is S for Spring Training, R for Regular Season, and P for Preseason*/
+
+        const statsURL = `https://statsapi.mlb.com/api/v1/people/${playerID}/stats?stats=season&season=2026&gameType=S`;
+        const statsRes=await fetch(statsURL);
+        const personStatsData=await statsRes.json();
+
+        if (personStatsData.stats.length > 0) {
+            
+            gamesPlayed = personStatsData.stats[0].splits[0].stat.gamesPlayed;
+            atBats = personStatsData.stats[0].splits[0].stat.atBats;
+            hits = personStatsData.stats[0].splits[0].stat.hits;
+            runs = personStatsData.stats[0].splits[0].stat.runs;
+            rbi = personStatsData.stats[0].splits[0].stat.rbi;
+            homeRuns = personStatsData.stats[0].splits[0].stat.homeRuns;
+            avg = personStatsData.stats[0].splits[0].stat.avg;
+            inningsPitched = personStatsData.stats[0].splits[0].stat.inningsPitched;
+            wins = personStatsData.stats[0].splits[0].stat.wins;
+            losses = personStatsData.stats[0].splits[0].stat.losses;
+            era = personStatsData.stats[0].splits[0].stat.era;
+            strikeOuts = personStatsData.stats[0].splits[0].stat.strikeOuts;
+        }
+            
+        if (field === "Pitcher"){
+
             const row=`
             <tr>
-            <td>${data.roster[i].jerseyNumber}</td>
-            <td>${data.roster[i].person.fullName}</td>
-            <td>${playerStats?.gamesPlayed || "0"}</td>
-            <td>${playerStats?.inningsPitched || "0.0"}</td>
-            <td>${playerStats?.wins || "0"}</td>
-            <td>${playerStats?.losses || "0"}</td>
-            <td>${playerStats?.era || "0.00"}</td>
-            <td>${playerStats?.strikeOuts || "0"}
+            <td>${jersey}</td>
+            <td>${name}</td>
+            <td>${gamesPlayed}</td>
+            <td>${inningsPitched}</td>
+            <td>${wins}</td>
+            <td>${losses}</td>
+            <td>${era}</td>
+            <td>${strikeOuts}</td>
             </tr>
             `;
 
             document.getElementById("pitcherTable").insertAdjacentHTML("beforeend",row);
-        } else {
-            let playerID = data.roster[i].person.id;
-            let playerStats = boxData.teams.home.players[`ID${playerID}`];
-            if (!playerStats) {
-                playerStats = boxData.teams.away.players[`ID${playerID}`];
-            }
-
-            const row=`
+        }
+        else {
+        const row=`
             <tr>
-            <td>${data.roster[i].jerseyNumber}</td>
-            <td>${data.roster[i].person.fullName}</td>
-            <td>${data.roster[i].position.name}</td>
-            <td>${playerStats?.seasonStats.batting?.gamesPlayed || "0"}</td>
-            <td>${playerStats?.seasonStats.batting?.atBats || "0"}</td>
-            <td>${playerStats?.seasonStats.batting?.hits || "0"}</td>
-            <td>${playerStats?.seasonStats.batting?.runs || "0"}</td>
-            <td>${playerStats?.seasonStats.batting?.rbi || "0"}</td>
-            <td>${playerStats?.seasonStats.batting?.avg || "0.000"}
-            <td>${playerStats?.seasonStats.batting?.homeRuns || "0"}</td>
+            <td>${jersey}</td>
+            <td>${name}</td>
+            <td>${field}</td>
+            <td>${gamesPlayed}</td>
+            <td>${atBats}</td>
+            <td>${hits}</td>
+            <td>${runs}</td>
+            <td>${homeRuns}</td>
+            <td>${rbi}</td>
+            <td>${avg}</td>
             </tr>
             `;
-
+            
         document.getElementById("hitterTable").insertAdjacentHTML("beforeend",row);
-
+        }
     }
-    });
-
-    return null;
-
+        
+return null;
 }
 
 fetchRoster();
-
+    
 </script>
 
 </body>
