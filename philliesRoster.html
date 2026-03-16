@@ -98,7 +98,8 @@
 
 async function fetchRoster(){
 
-    const url=`https://statsapi.mlb.com/api/v1/teams/143/roster?rosterType=active`;
+    /*types of rosters that i know work, there may be others: active, fullRoster, depthChart*/
+    const url=`https://statsapi.mlb.com/api/v1/teams/143/roster/active`;
     const res=await fetch(url);
     const data=await res.json();
 
@@ -121,7 +122,7 @@ async function fetchRoster(){
         let name = data.roster[i]?.person.fullName;
         let field = data.roster[i]?.position.name;
 
-        /*Game Type idenfier is S for Spring Training, R for Regular Season, and P for Preseason*/
+        /*Game Type idenfier is S for Spring Training, R for Regular Season and P for Postseason*/
 
         const statsURL = `https://statsapi.mlb.com/api/v1/people/${playerID}/stats?stats=season&season=2026&gameType=S`;
         const statsRes=await fetch(statsURL);
