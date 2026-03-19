@@ -45,6 +45,7 @@
             font-size: 26px;
             font-weight: bold;
             margin-bottom: 10px;
+            color: rgb(0, 45, 114)
         }
 
         .inning {
@@ -52,6 +53,12 @@
             margin-bottom: 20px;
             color: #e81828;
             font-weight: bold;
+        }
+
+        .count {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color:#e81828;
         }
 
         .playerFullName {
@@ -311,7 +318,7 @@ function buildLineScore(lineData, boxData) {
         return "<p>Game has not started yet</p>";
     }*/
 
-    let html = `<h2>Line Score</h2><table><tr><th>Team</th>`;
+    let html = `<h2></h2><table><tr><th>Team</th>`;
 
     let minInnings = 9;
 
@@ -426,9 +433,42 @@ function displayFullGame(boxData, lineData, liveData) {
         currentInning = "Final";
     } else if (liveData.gameData.status.abstractGameCode === "O") {
         currentInning = "Pre-Game";
+    } else if (liveData.gameData.status.abstractGameCode === "L") {
+        currentInning = `${lineData.inningState} ${lineData.currentInningOrdinal}`;    
     } else {
         /*currentInning = `${lineData.inningState || "N/A"} ${lineData.currentInningOrdinal || ""}`;*/
         currentInning = "";
+    }
+
+    let currentCount = "";
+    let batterName = "";
+    let firstBase = "";
+    let secondBase = "";
+    let thirdBase = "";
+    let onBase = "";
+
+    if (lineData.inningState === "Middle" || lineData.inningState === "End") {
+        currentCount = "";
+        batterName = "";
+    } else {
+        currentCount = `Balls:${lineData.balls} Strikes:${lineData.strikes} Outs:${lineData.outs}`;
+        batterName = `At Bat: ${lineData.offense.batter.fullName || "N/A"}`;
+        if (lineData.offense.first) {
+            firstBase = `First: ${lineData.offense.first.fullName}`;
+        } else {
+            firstBase = "";
+        }
+        if (lineData.offense.second) {
+            secondBase = `Second: ${lineData.offense.second.fullName}`;
+        } else {
+            secondBase = "";
+        }
+        if (lineData.offense.third) {
+            thirdBase = `Third: ${lineData.offense.third.fullName}`;
+        } else {
+            thirdBase = "";
+        }
+        onBase = `On Base: ${firstBase} ${secondBase} ${thirdBase}`;
     }
 
     let html = `
@@ -441,6 +481,18 @@ function displayFullGame(boxData, lineData, liveData) {
 
             <div class="inning">
                 ${currentInning}
+            </div>
+
+            <div class="count">
+                ${currentCount}
+            </div>
+
+            <div class="count">
+                ${batterName}
+            </div>
+
+            <div class="count">
+                 ${firstBase} ${secondBase} ${thirdBase}
             </div>
 
             ${decisionsHTML}
