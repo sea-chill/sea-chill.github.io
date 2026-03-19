@@ -91,7 +91,7 @@ async function loadScheduleData() {
     
         games.forEach((game, i) => {
             const gameDate = new Date(game.gameDate);
-            const day = gameDate.toLocaleDateString('en-US', { weekday: 'long' });
+            const day = gameDate.toLocaleDateString('en-US', { weekday: 'short' });
             const date = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             const time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
             const opponent = game.teams.home.team.id === 143 ? game.teams.away.team.name : game.teams.home.team.name;
