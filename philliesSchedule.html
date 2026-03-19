@@ -62,7 +62,6 @@
                 <th>Opponent</th>
                 <th>Opponent Record</th>
                 <th>Phillies Record</th>
-                <th>Home/Away</th>
                 <th>Result / Score</th>
                 </tr>
             </thead>
@@ -94,8 +93,11 @@ async function loadScheduleData() {
             const day = gameDate.toLocaleDateString('en-US', { weekday: 'long' });
             const date = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             const time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-            const opponent = game.teams.home.team.id === 143 ? game.teams.away.team.name : game.teams.home.team.name;
+            let opponent = game.teams.home.team.id === 143 ? game.teams.away.team.name : game.teams.home.team.name;
             const homeAway = game.teams.home.team.id === 143 ? "Home" : "Away";
+            if (homeAway === 'Away') {
+                opponent = `@ ${opponent}`;
+            }
             let record = game.teams.home.team.id !== 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
             let philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
             let resultScore = game.status.abstractGameCode === "F" ? `${game.teams.home.score}-${game.teams.away.score}` : "---";   
@@ -123,7 +125,6 @@ async function loadScheduleData() {
             <td>${opponent}</td>
             <td>${record}</td>
             <td>${philsRecord}</td>
-            <td>${homeAway}</td>
             <td>${result} / ${resultScore}</td>
             </tr>
             `;
