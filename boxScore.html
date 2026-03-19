@@ -469,7 +469,11 @@ function displayFullGame(boxData, lineData, liveData, schedAPI) {
         } else {
             thirdBase = "";
         }
-        onBase = `On Base: ${firstBase} ${secondBase} ${thirdBase}`;
+        if (!firstBase && !secondBase && !thirdBase) {
+            onBase = "Bases Empty";
+        } else {
+            onBase = `On Base: ${firstBase} ${secondBase} ${thirdBase}`;
+        }
     }
 
     let html = `
