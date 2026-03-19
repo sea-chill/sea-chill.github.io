@@ -192,7 +192,7 @@ async function loadGameData() {
     const lineData = await lineRes.json();
     const liveData = await liveRes.json();
 
-    displayFullGame(boxData, lineData, liveData);
+    displayFullGame(boxData, lineData, liveData, schedAPI);
 }
 
 function formatDate(dateString) {
@@ -356,7 +356,7 @@ function buildLineScore(lineData, boxData) {
 
 }
 
-function displayFullGame(boxData, lineData, liveData) {
+function displayFullGame(boxData, lineData, liveData, schedAPI) {
 
     let venue = "N/A";
     let attendance = "N/A";
@@ -447,7 +447,7 @@ function displayFullGame(boxData, lineData, liveData) {
     let thirdBase = "";
     let onBase = "";
 
-    if (lineData.inningState === "Middle" || lineData.inningState === "End") {
+    if (lineData.inningState === "Middle" || lineData.inningState === "End" || schedAPI.dates[0].games[0].status.abstractGameCode === "F") {
         currentCount = "";
         batterName = "";
     } else {
@@ -492,7 +492,7 @@ function displayFullGame(boxData, lineData, liveData) {
             </div>
 
             <div class="count">
-                 ${firstBase} ${secondBase} ${thirdBase}
+                 ${onBase}
             </div>
 
             ${decisionsHTML}
