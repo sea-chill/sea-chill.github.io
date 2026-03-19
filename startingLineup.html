@@ -9,6 +9,24 @@
 
 <link rel="stylesheet" href="style.css">
 
+<style>
+    
+    .game-Status {
+        height: 50vh;
+        background-image: repeating-linear-gradient(to right, white, white 50px, rgb(232, 24, 40) 50px,  rgb(232, 24, 40) 52px);
+        background-size: 100%;
+        border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
+        color:rgb(232, 24, 40); /*phillies red color*/
+        font-size: 75px;
+        font-weight: bold;
+        text-align: center;
+        background-size: cover;
+        display: flex;
+        justify-content: center; /* Centers horizontally along the main axis */
+        align-items: center; /* Centers vertically along the cross axis */
+    }
+    </style>
+
 </head>
 
 <body>
@@ -124,6 +142,7 @@ function backgroundAndTextColor(homeGame,gameHour){
 async function fetchGamePk(){
 
     const date = getTodayDate();
+    /*const date = "2026-03-24";*/
 
     const url=`https://statsapi.mlb.com/api/v1/schedule?teamId=${TEAM_ID}&sportId=1&date=${date}`;
 
@@ -131,14 +150,16 @@ async function fetchGamePk(){
 
     const data=await res.json();
 
-    let numGames = data.dates[0].totalGames;
+    if(data.dates[0] === undefined){
 
-    if(data.dates[0].totalGames=0){
+        document.body.innerHTML= `<div class="game-Status">No Phillies game today</div>`;
 
-        document.body.innerHTML="No Phillies game today.";
-
-        return null;
+        return
     }
+
+    gamePk=data.dates[0].games[0].gamePk;
+
+    let numGames = data.dates[0].totalGames;
 
     const game=data.dates[0].games[0];
 
@@ -148,7 +169,7 @@ async function fetchGamePk(){
 
     backgroundAndTextColor(isHomeGame,gameHour);
 
-    return game.gamePk;
+    return (gamePk);
 }
 
 /* LOAD LINEUPS */
@@ -159,6 +180,8 @@ async function loadLineups(){
     These correspond to their original position in the batting order (1st through 9th).*/
 
     const gamePk=await fetchGamePk();
+
+    if (gamePk === 'no-game') return;
 
     if(!gamePk) return;
 
@@ -192,9 +215,9 @@ async function loadLineups(){
     const philliesSP=phillies.pitchers[0];
     const opponentSP=opponent.pitchers[0];
 
-    if (philliesSP.length === 0 || opponentSP.length === 0) {
-        document.getElementById("philliesPitcher").innerText = "Starting pitcher not announced yet.";
-        document.getElementById("opponentPitcher").innerText = "Starting pitcher not announced yet.";
+    if (!philliesSP || !opponentSP) {
+        document.getElementById("philliesPitcher").innerText = "";
+        document.getElementById("opponentPitcher").innerText = "";
         return;
     }
 

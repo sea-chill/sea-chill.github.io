@@ -154,12 +154,19 @@ async function loadGameData() {
     month = String(dayTime.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
     day = String(dayTime.getDate()).padStart(2, "0");
     let today = `${year}-${month}-${day}`;
+    /*let today = "2026-03-24";*/
 
     const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${today}`;
     const res = await fetch(url);
     const schedAPI = await res.json();
+
+    if (!schedAPI.dates || schedAPI.dates.length === 0) {
+        document.getElementById("boxscore").innerHTML = "<div class='inning'><p>No game scheduled for today</p></div>";
+        return;
+    }
+
     const gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
-    /*const gamePk = 777038;*/
+    /*const gamePk = 776311;*/
 
     const TEAM_ID = 143;
     const game=schedAPI.dates[0].games[0];
@@ -300,13 +307,19 @@ function buildPitchingTable(team) {
 
 function buildLineScore(lineData, boxData) {
         
-    if (lineData.innings.length === 0) {
+    /*if (lineData.innings.length === 0) {
         return "<p>Game has not started yet</p>";
-    }
+    }*/
 
     let html = `<h2>Line Score</h2><table><tr><th>Team</th>`;
+
+    let minInnings = 9;
+
+    if (lineData.innings.length > 9) {
+        minInnings = lineData.innings.length;
+    }
     
-    const safeInnings = Array.from({length: lineData.innings.length}, (_, i) =>
+    const safeInnings = Array.from({length: minInnings}, (_, i) =>
         lineData.innings[i]);
     safeInnings.forEach((inning, i) => {
         html += `<th>${i + 1}</th>`;}
@@ -318,13 +331,17 @@ function buildLineScore(lineData, boxData) {
             html += `<tr><td>${boxData.teams[side].team.teamName}</td>`;
 
             safeInnings.forEach(inning => {
+                if (!inning) {
+                    html += `<td>--</td>`;
+                } else {
                 html += `<td>${inning[side]?.runs ?? '--'}</td>`;
+                }
             });
 
             html += `
-                <td>${lineData.teams[side].runs}</td>
-                <td>${lineData.teams[side].hits}</td>
-                <td>${lineData.teams[side].errors}</td>
+                <td>${lineData.teams[side].runs ?? '0'}</td>
+                <td>${lineData.teams[side].hits ?? '0'}</td>
+                <td>${lineData.teams[side].errors ?? '0'}</td>
             </tr>`;
         });
     html += `</table>`;
@@ -409,12 +426,10 @@ function displayFullGame(boxData, lineData, liveData) {
         currentInning = "Final";
     } else if (liveData.gameData.status.abstractGameCode === "O") {
         currentInning = "Pre-Game";
-    } else if (liveData.gameData.status.abstractGameCode === "P") {
-        currentInning = "Postponed";
     } else {
-        currentInning = `${lineData.inningState || "N/A"} ${lineData.currentInningOrdinal || ""}`;
+        /*currentInning = `${lineData.inningState || "N/A"} ${lineData.currentInningOrdinal || ""}`;*/
+        currentInning = "";
     }
-
 
     let html = `
         <div class="box-container">
