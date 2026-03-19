@@ -3,6 +3,7 @@
 <head>
     <title>Phillies Box Score</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="PhilsIcon.png"> <!-- Favicon link -->
 
     <style>
         body {
@@ -152,7 +153,7 @@ function backgroundAndTextColor(homeGame,gameHour){
     element.classList.add(stateClass);
 }
 
-/*const gamePk = 776311;*/
+/*const gamePk = 831605;*/
 
 async function loadGameData() {
 
@@ -173,7 +174,7 @@ async function loadGameData() {
     }
 
     const gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
-    /*const gamePk = 776311;*/
+    /*const gamePk = 831605;*/
 
     const TEAM_ID = 143;
     const game=schedAPI.dates[0].games[0];
