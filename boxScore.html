@@ -47,6 +47,21 @@
             margin-bottom: 10px;
         }
 
+        .inning {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #e81828;
+            font-weight: bold;
+        }
+
+        .playerFullName {
+            text-align: left;
+        }
+
+        .substitute {
+            padding-left: 200px; 
+        }
+
         h2 {
             margin-top: 30px;
             color: #e81828;
@@ -57,6 +72,7 @@
             border-collapse: collapse;
             margin-top: 10px;
             margin-bottom: 20px;
+            text-align: left;
         }
 
         th, td {
@@ -129,7 +145,7 @@ function backgroundAndTextColor(homeGame,gameHour){
     element.classList.add(stateClass);
 }
 
-/*const gamePk = 831533; */
+/*const gamePk = 776311;*/
 
 async function loadGameData() {
 
@@ -143,6 +159,7 @@ async function loadGameData() {
     const res = await fetch(url);
     const schedAPI = await res.json();
     const gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
+    /*const gamePk = 777038;*/
 
     const TEAM_ID = 143;
     const game=schedAPI.dates[0].games[0];
@@ -193,30 +210,56 @@ function buildBattingTable(team) {
                 <th>BB</th>
                 <th>SO</th>
             </tr>
-    `;
+    `;  
+       
+    let orderTest = 0;
 
-    for (let id in team.players) {
-        const player = team.players[id];
-
-        if (player.stats.batting && player.stats.batting.atBats > 0) {
-            html += `
-                <tr>
-                    <td>${player.jerseyNumber || ""}</td>
-                    <td>${player.position.abbreviation}</td>
-                    <td>${player.person.fullName}</td>
-                    <td>${player.stats.batting.atBats}</td>
-                    <td>${player.stats.batting.runs}</td>
-                    <td>${player.stats.batting.hits}</td>
-                    <td>${player.stats.batting.rbi}</td>
-                    <td>${player.stats.batting.baseOnBalls}</td>
-                    <td>${player.stats.batting.strikeOuts}</td>
-                </tr>
-            `;
+    for (i = 0; i < team.batters.length; i++) {
+        orderTest = (Math.round(orderTest / 100) * 100) + 100;
+        for (j = 0; j < team.batters.length; j++) {
+            const player = team.batters[j];
+            idPlayer = 'ID' + player;
+            let order = team.players[idPlayer].battingOrder;
+            if (order == orderTest) {
+                if (orderTest % 100 !== 0) {
+                    html += `
+                    <tr>
+                        <td>${team.players[idPlayer].jerseyNumber || ""}</td>
+                        <td>${team.players[idPlayer].position.abbreviation}</td>
+                        <td><div class="substitute">--${team.players[idPlayer].person.fullName}</div></td>
+                        <td>${team.players[idPlayer].stats.batting.atBats}</td>
+                        <td>${team.players[idPlayer].stats.batting.runs}</td>
+                        <td>${team.players[idPlayer].stats.batting.hits}</td>
+                        <td>${team.players[idPlayer].stats.batting.rbi}</td>
+                        <td>${team.players[idPlayer].stats.batting.baseOnBalls}</td>
+                        <td>${team.players[idPlayer].stats.batting.strikeOuts}</td>
+                    </tr>
+                `;
+                orderTest++;
+                } else {
+                html += `
+                    <tr>
+                        <td>${team.players[idPlayer].jerseyNumber || ""}</td>
+                        <td>${team.players[idPlayer].position.abbreviation}</td>
+                        <td>${team.players[idPlayer].person.fullName}</td>
+                        <td>${team.players[idPlayer].stats.batting.atBats}</td>
+                        <td>${team.players[idPlayer].stats.batting.runs}</td>
+                        <td>${team.players[idPlayer].stats.batting.hits}</td>
+                        <td>${team.players[idPlayer].stats.batting.rbi}</td>
+                        <td>${team.players[idPlayer].stats.batting.baseOnBalls}</td>
+                        <td>${team.players[idPlayer].stats.batting.strikeOuts}</td>
+                    </tr>
+                `;
+                orderTest++;
+                }
+            }
+            else {
+                continue;
+            }
         }
-    }
-
-    html += `</table>`;
-    return html;
+    }               
+html += `</table>`;
+return html;
 }
 
 function buildPitchingTable(team) {
@@ -234,23 +277,21 @@ function buildPitchingTable(team) {
             </tr>
     `;
 
-    for (let id in team.players) {
-        const player = team.players[id];
-
-        if (player.stats.pitching && player.stats.pitching.inningsPitched) {
+    for (j = 0; j < team.pitchers.length; j++) {
+            const player = team.pitchers[j];
+            idPlayer = 'ID' + player;
             html += `
                 <tr>
-                    <td>${player.jerseyNumber || ""}</td>
-                    <td>${player.person.fullName}</td>
-                    <td>${player.stats.pitching.inningsPitched}</td>
-                    <td>${player.stats.pitching.hits}</td>
-                    <td>${player.stats.pitching.runs}</td>
-                    <td>${player.stats.pitching.earnedRuns}</td>
-                    <td>${player.stats.pitching.baseOnBalls}</td>
-                    <td>${player.stats.pitching.strikeOuts}</td>
+                    <td>${team.players[idPlayer].jerseyNumber || ""}</td>
+                    <td>${team.players[idPlayer].person.fullName}</td>
+                    <td>${team.players[idPlayer].stats.pitching.inningsPitched}</td>
+                    <td>${team.players[idPlayer].stats.pitching.hits}</td>
+                    <td>${team.players[idPlayer].stats.pitching.runs}</td>
+                    <td>${team.players[idPlayer].stats.pitching.earnedRuns}</td>
+                    <td>${team.players[idPlayer].stats.pitching.baseOnBalls}</td>
+                    <td>${team.players[idPlayer].stats.pitching.strikeOuts}</td>
                 </tr>
             `;
-        }
     }
 
     html += `</table>`;
@@ -258,35 +299,37 @@ function buildPitchingTable(team) {
 }
 
 function buildLineScore(lineData, boxData) {
-
+        
     if (lineData.innings.length === 0) {
         return "<p>Game has not started yet</p>";
     }
 
     let html = `<h2>Line Score</h2><table><tr><th>Team</th>`;
-
-    lineData.innings.forEach((inning, i) => {
-        html += `<th>${i + 1}</th>`;
-    });
+    
+    const safeInnings = Array.from({length: lineData.innings.length}, (_, i) =>
+        lineData.innings[i]);
+    safeInnings.forEach((inning, i) => {
+        html += `<th>${i + 1}</th>`;}
+    );
 
     html += `<th>R</th><th>H</th><th>E</th></tr>`;
 
-    ["away", "home"].forEach(side => {
-        html += `<tr><td>${boxData.teams[side].team.teamName}</td>`;
+        ["away", "home"].forEach(side => {
+            html += `<tr><td>${boxData.teams[side].team.teamName}</td>`;
 
-        lineData.innings.forEach(inning => {
-            html += `<td>${inning[side].runs ?? 0}</td>`;
+            safeInnings.forEach(inning => {
+                html += `<td>${inning[side]?.runs ?? '--'}</td>`;
+            });
+
+            html += `
+                <td>${lineData.teams[side].runs}</td>
+                <td>${lineData.teams[side].hits}</td>
+                <td>${lineData.teams[side].errors}</td>
+            </tr>`;
         });
-
-        html += `
-            <td>${lineData.teams[side].runs}</td>
-            <td>${lineData.teams[side].hits}</td>
-            <td>${lineData.teams[side].errors}</td>
-        </tr>`;
-    });
-
     html += `</table>`;
-    return html;
+    return html;  
+
 }
 
 function displayFullGame(boxData, lineData, liveData) {
@@ -358,12 +401,31 @@ function displayFullGame(boxData, lineData, liveData) {
         `;
     }
 
+    // Current Inning
+
+    let currentInning = "";
+
+    if (liveData.gameData.status.abstractGameCode === "F"){
+        currentInning = "Final";
+    } else if (liveData.gameData.status.abstractGameCode === "O") {
+        currentInning = "Pre-Game";
+    } else if (liveData.gameData.status.abstractGameCode === "P") {
+        currentInning = "Postponed";
+    } else {
+        currentInning = `${lineData.inningState || "N/A"} ${lineData.currentInningOrdinal || ""}`;
+    }
+
+
     let html = `
         <div class="box-container">
 
             <div class="score">
                 ${phillies.team.name} ${phillies.teamStats.batting.runs} - 
                 ${opponent.team.name} ${opponent.teamStats.batting.runs}
+            </div>
+
+            <div class="inning">
+                ${currentInning}
             </div>
 
             ${decisionsHTML}

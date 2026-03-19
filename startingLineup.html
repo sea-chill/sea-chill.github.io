@@ -155,6 +155,9 @@ async function fetchGamePk(){
 
 async function loadLineups(){
 
+    /*Starters: Have values that are multiples of 100 (e.g., 100, 200, 300, ..., 900). 
+    These correspond to their original position in the batting order (1st through 9th).*/
+
     const gamePk=await fetchGamePk();
 
     if(!gamePk) return;
@@ -207,13 +210,36 @@ async function loadLineups(){
 
     function renderLineup(team,element){
 
-    const lineup=team.battingOrder;
+    const lineup=team.batters;
 
     lineup.forEach((playerId,i)=>{
 
-    const player=team.players["ID"+playerId];
+       const player=team.players["ID"+playerId];
 
-    const number=player.jerseyNumber||"";
+        if (player.battingOrder % 100 === 0 && player.position.abbreviation !== "P") {
+
+            const player=team.players["ID"+playerId];
+
+            const order = player.battingOrder / 100;
+            const number=player.jerseyNumber||"";
+            const name=player.person.fullName;
+            const pos=player.position.abbreviation;
+
+            const row=`
+            <tr>
+            <td>${order}</td>
+            <td>#${number} ${name}</td>
+            <td>${pos}</td>
+            </tr>
+            `;
+
+            document.getElementById(element).insertAdjacentHTML("beforeend",row);
+
+        }
+
+    /*const player=team.players["ID"+playerId];*/
+
+    /*const number=player.jerseyNumber||"";
     const name=player.person.fullName;
     const pos=player.position.abbreviation;
 
@@ -225,7 +251,7 @@ async function loadLineups(){
     </tr>
     `;
 
-    document.getElementById(element).insertAdjacentHTML("beforeend",row);
+    document.getElementById(element).insertAdjacentHTML("beforeend",row);*/
 
     });
 
