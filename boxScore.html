@@ -190,7 +190,7 @@ async function loadGameData() {
     ]);
 
 
-    let intervalID = null;
+   /* let intervalID = null;
     
     if (schedAPI.dates[0].games[0].status.abstractGameCode === "L") {
         intervalID = setInterval(displayFullGame(), 15000);
@@ -198,7 +198,7 @@ async function loadGameData() {
 
     if (schedAPI.dates[0].games[0].status.abstractGameCode !== "L") {
         clearInterval(intervalID);
-    }
+    }*/
     
     
     const boxData = await boxRes.json();
@@ -429,7 +429,7 @@ function displayFullGame(boxData, lineData, liveData, schedAPI) {
     `;
 
     if (lineData.innings.length === 0) {
-        document.getElementById("boxscore").innerHTML = "<div class='inning'><p>Game has not started yet</p></div>";
+        document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Game scheduled for later today</p></div>";
         return;
     }
     
