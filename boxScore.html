@@ -465,7 +465,7 @@ function displayFullGame(boxData, lineData, liveData, schedAPI) {
     let thirdBase = "";
     let onBase = "";
 
-    if (lineData.inningState === "Middle" || lineData.inningState === "End" || schedAPI.dates[0].games[0].status.abstractGameCode === "F") {
+    if (lineData.inningState === "Middle" || lineData.inningState === "End" || schedAPI.dates[0].games[0].status.abstractGameCode === "F" || schedAPI.dates[0].games[0].status.abstractGameCode !== "L") {
         currentCount = "";
         batterName = "";
     } else {
