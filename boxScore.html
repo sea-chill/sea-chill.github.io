@@ -189,6 +189,18 @@ async function loadGameData() {
         fetch(`https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`)
     ]);
 
+
+    let intervalID = null;
+    
+    if (schedAPI.dates[0].games[0].status.abstractGameCode === "L") {
+        intervalID = setInterval(displayFullGame(), 15000);
+    } 
+
+    if (schedAPI.dates[0].games[0].status.abstractGameCode !== "L") {
+        clearInterval(intervalID);
+    }
+    
+    
     const boxData = await boxRes.json();
     const lineData = await lineRes.json();
     const liveData = await liveRes.json();
@@ -416,6 +428,11 @@ function displayFullGame(boxData, lineData, liveData, schedAPI) {
         <img src="https://www.mlbstatic.com/team-logos/${opponent.team.id}.svg">
     `;
 
+    if (lineData.innings.length === 0) {
+        document.getElementById("boxscore").innerHTML = "<div class='inning'><p>Game has not started yet</p></div>";
+        return;
+    }
+    
     // Decisions
     let decisionsHTML = "";
     if (liveData.liveData.decisions) {
