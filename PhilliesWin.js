@@ -77,9 +77,19 @@ async function fetchSchedule() {
 }
 
 function backgroundAndTextColor(homeGame, gameHour) {
+
+    let today = getTodayDate();
+    today = "2026-03-28"; /*this is opening day for the 2026 season.  I am hardcoding this for now, but I will need to update this later to check if the date is opening day for the season.  This is because they will be wearing pinstripes regardless of if it is a day or night game. */
+    if (today === "2026-03-28") { /*Opening Day is March 28, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
+        const philliesODElement = document.getElementById("phillies-color"); 
+        const stateClass = "pinstripes";
+        philliesODElement.classList.add(stateClass);
+        return(stateClass);
+    }
+
     const dayOfWeek = getDayOfWeek(); /*need day of week to see if Thursday or Friday for uniform color and background color on website*/
     /*dayOfWeek = 0;*//*get day of week with date input for testing purposes.  This will need to be updated later to get the day of week for the date of the game, not just today's date.*/
-    if (dayOfWeek === 4) { /*Thursday*/
+    if (dayOfWeek === 4 && homeGame) { /*Thursday*/
         const philliesPBElement = document.getElementById("phillies-color"); 
         const stateClass = "powder-blue";
         philliesPBElement.classList.add(stateClass);
@@ -110,6 +120,7 @@ function backgroundAndTextColor(homeGame, gameHour) {
         /*console.log(`Background and text color set to grey for today. Home game: ${homeGame}, Game hour: ${gameHour}, Day of week: ${dayOfWeek}, uniform: ${stateClass}`);*/
         return(stateClass);
     } 
+    
     return(null)
   }
 
@@ -119,6 +130,8 @@ function backgroundAndTextColor(homeGame, gameHour) {
 async function runDailyReport() {
  /* const holiday = getHolidayMessage();
   if (holiday) console.log(holiday); */
+  /*Need to run this for opening day since they will be wearing pinstripes.
+  Opening Day is March 28, 2026*/
 
   const scheduleData = await fetchSchedule();
 

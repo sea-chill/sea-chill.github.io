@@ -122,6 +122,19 @@ function getDayOfWeek(){
 
 function backgroundAndTextColor(homeGame,gameHour){
 
+    let today = new Date();
+    let year = today.getFullYear();
+    let month = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    let day = String(today.getDate()).padStart(2, "0");
+    today = `${year}-${month}-${day}`;
+    today = "2026-03-28"; /*this is opening day for the 2026 season.*/
+    if (today === "2026-03-28") { /*Opening Day is March 28, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
+        const philliesODElement = document.getElementById("phillies-color"); 
+        const stateClass = "pinstripes";
+        philliesODElement.classList.add(stateClass);
+        return(stateClass);
+    }
+
     const element = document.getElementById("phillies-color");
 
     let stateClass;
@@ -176,6 +189,9 @@ async function loadGameData() {
     const gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
     /*const gamePk = 831605;*/
 
+let guess = 8;
+
+
     const TEAM_ID = 143;
     const game=schedAPI.dates[0].games[0];
     const isHomeGame=game.teams.home.team.id===TEAM_ID;
@@ -189,17 +205,6 @@ async function loadGameData() {
         fetch(`https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`)
     ]);
 
-
-   /* let intervalID = null;
-    
-    if (schedAPI.dates[0].games[0].status.abstractGameCode === "L") {
-        intervalID = setInterval(displayFullGame(), 15000);
-    } 
-
-    if (schedAPI.dates[0].games[0].status.abstractGameCode !== "L") {
-        clearInterval(intervalID);
-    }*/
-    
     
     const boxData = await boxRes.json();
     const lineData = await lineRes.json();
@@ -473,11 +478,17 @@ function displayFullGame(boxData, lineData, liveData, schedAPI) {
         batterName = `At Bat: ${lineData.offense.batter.fullName || "N/A"}`;
         if (lineData.offense.first) {
             firstBase = `First: ${lineData.offense.first.fullName}`;
+            if (lineData.offense.second || lineData.offense.third) {
+                firstBase = `First: ${lineData.offense.first.fullName} ||`;
+            }
         } else {
             firstBase = "";
         }
         if (lineData.offense.second) {
             secondBase = `Second: ${lineData.offense.second.fullName}`;
+            if (lineData.offense.third) {
+                secondBase = `Second: ${lineData.offense.second.fullName} ||`;
+            }
         } else {
             secondBase = "";
         }
@@ -537,6 +548,7 @@ function displayFullGame(boxData, lineData, liveData, schedAPI) {
     `;
 
     document.getElementById("boxscore").innerHTML = html;
+
 }
 
 loadGameData();
