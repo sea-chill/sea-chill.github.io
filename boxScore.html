@@ -470,7 +470,7 @@ function displayFullGame(boxData, lineData, liveData, schedAPI) {
     let thirdBase = "";
     let onBase = "";
 
-    if (lineData.inningState === "Middle" || lineData.inningState === "End" || schedAPI.dates[0].games[0].status.abstractGameCode === "F" || schedAPI.dates[0].games[0].status.abstractGameCode !== "L") {
+    if (lineData.inningState === "Middle" || lineData.inningState === "End") {
         currentCount = "";
         batterName = `Coming up: ${lineData.offense.batter.fullName} || ${lineData.offense.onDeck.fullName} || ${lineData.offense.inHole.fullName}`;
     } else if (schedAPI.dates[0].games[0].status.abstractGameCode === "F" || schedAPI.dates[0].games[0].status.abstractGameCode !== "L") {
