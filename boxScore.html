@@ -472,6 +472,9 @@ function displayFullGame(boxData, lineData, liveData, schedAPI) {
 
     if (lineData.inningState === "Middle" || lineData.inningState === "End" || schedAPI.dates[0].games[0].status.abstractGameCode === "F" || schedAPI.dates[0].games[0].status.abstractGameCode !== "L") {
         currentCount = "";
+        batterName = `Coming up: ${lineData.offense.batter.fullName} || ${lineData.offense.onDeck.fullName} || ${lineData.offense.inHole.fullName}`;
+    } else if (schedAPI.dates[0].games[0].status.abstractGameCode === "F" || schedAPI.dates[0].games[0].status.abstractGameCode !== "L") {
+        currentCount = "";
         batterName = "";
     } else {
         currentCount = `Balls:${lineData.balls} Strikes:${lineData.strikes} Outs:${lineData.outs}`;
