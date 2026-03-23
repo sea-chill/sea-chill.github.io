@@ -40,6 +40,12 @@
             font-weight: bold;
             margin-top: 20px;
         }
+        .home {
+            color:rgb(232, 24, 40); /*phillies red color for home games in schedule*/
+        }
+        .away {
+            color:rgb(0, 45, 114); /*phillies blue color for away games in schedule*/
+        }
 
     </style>
  </head>
@@ -95,8 +101,18 @@ async function loadScheduleData() {
             const day = gameDate.toLocaleDateString('en-US', { weekday: 'long' });
             const date = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             const time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-            const opponent = game.teams.home.team.id === 143 ? game.teams.away.team.name : game.teams.home.team.name;
-            const homeAway = game.teams.home.team.id === 143 ? "Home" : "Away";
+            let homeAway = game.teams.home.team.id === 143 ? "Home" : "Away";
+            if (homeAway === "Home") {
+                homeAway = "<div class='home'>Home</div>";
+            } else {
+                homeAway = "<div class='away'>Away</div>";
+            }
+            let opponent = game.teams.home.team.id === 143 ? "<div class='home'>" + game.teams.away.team.name + "</div>" : "<div class='away'>" + game.teams.home.team.name + "</div>";
+            /*if (homeAway === "Home") {
+                let homeopponent = "<div class='home'>opponent</div>";
+            } else {
+                let awayopponent = "<div class='away'>opponent</div>";
+            }*/
             let record = game.teams.home.team.id !== 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
             let philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
             let resultScore = game.status.abstractGameCode === "F" ? `${game.teams.home.score}-${game.teams.away.score}` : "---";   
