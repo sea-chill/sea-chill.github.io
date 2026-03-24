@@ -79,7 +79,7 @@ async function fetchSchedule() {
 function backgroundAndTextColor(homeGame, gameHour) {
 
     let today = getTodayDate();
-    /*today = "2026-03-28"; this is opening day for the 2026 season.  I am hardcoding this for now, but I will need to update this later to check if the date is opening day for the season.  This is because they will be wearing pinstripes regardless of if it is a day or night game. */
+    /*today = "2026-03-26"; this is opening day for the 2026 season.  I am hardcoding this for now, but I will need to update this later to check if the date is opening day for the season.  This is because they will be wearing pinstripes regardless of if it is a day or night game. */
     if (today === "2026-03-28") { /*Opening Day is March 28, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
         const philliesODElement = document.getElementById("phillies-color"); 
         const stateClass = "pinstripes";
@@ -144,7 +144,7 @@ async function runDailyReport() {
     let gameStatus = "No Game";
     /*console.log(`Phillies (team 143) did not play today. ${gameStatus}`); */ /*if there are no games, then the Phillies did not play today.*/
     const philliesResultElement = document.getElementById("phillies-gameOne-result"); 
-    philliesResultElement.textContent = "The Phillies have no game scheduled today";
+    philliesResultElement.textContent = "No game scheduled for today";
     const philliesDNPElement = document.getElementById("phillies-color"); 
         const stateClass = "pinstripes";
         philliesDNPElement.classList.add(stateClass);

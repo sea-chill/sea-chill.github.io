@@ -56,7 +56,7 @@
     Return to Did the Phillies Win Today?
     </button>
 
-    <h1>2026 Philadelphia Phillies Spring Training Schedule</h1>
+    <h1>2026 Philadelphia Phillies Schedule</h1>
     <!-- <p class = "h2" id="philsRecord"></p> -->
 
     <div class="schedule-Container">
@@ -88,7 +88,7 @@
 async function loadScheduleData() {
 
     /* using the game type parameter S - spring training, R - regular season, D - postseason */
-    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=143&startDate=2026-02-21&endDate=2026-10-30&gameTypes=S`;
+    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=143&startDate=2026-02-21&endDate=2026-10-30&gameTypes=R`;
     const res =await fetch(url);
     const schedAPI =await res.json();
 
@@ -97,27 +97,27 @@ async function loadScheduleData() {
         let resultScore = "TBD";*/
     
         games.forEach((game, i) => {
-            const gameDate = new Date(game.gameDate);
-            const day = gameDate.toLocaleDateString('en-US', { weekday: 'long' });
-            const date = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+            let gameDate = new Date(game.gameDate);
+
+            let day = gameDate.toLocaleDateString('en-US', { weekday: 'long' });
+           
+            let date = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            
+            let time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+            
+            let opponent = game.teams.home.team.id === 143 ? game.teams.away.team.name : game.teams.home.team.name;
+            
+            let record = game.teams.home.team.id === 143 ? game.teams.home.leagueRecord.wins - game.teams.home.leagueRecord.losses : game.teams.away.leagueRecord.wins - game.teams.away.leagueRecord.losses;
+            
+            let philsRecord = game.teams.home.team.id === 143 ? game.teams.home.leagueRecord.wins - game.teams.home.leagueRecord.losses : game.teams.away.leagueRecord.wins - game.teams.away.leagueRecord.losses;
+            
             let homeAway = game.teams.home.team.id === 143 ? "Home" : "Away";
-            if (homeAway === "Home") {
-                homeAway = "<div class='home'>Home</div>";
-            } else {
-                homeAway = "<div class='away'>Away</div>";
-            }
-            let opponent = game.teams.home.team.id === 143 ? "<div class='home'>" + game.teams.away.team.name + "</div>" : "<div class='away'>" + game.teams.home.team.name + "</div>";
-            /*if (homeAway === "Home") {
-                let homeopponent = "<div class='home'>opponent</div>";
-            } else {
-                let awayopponent = "<div class='away'>opponent</div>";
-            }*/
-            let record = game.teams.home.team.id !== 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
-            let philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
-            let resultScore = game.status.abstractGameCode === "F" ? `${game.teams.home.score}-${game.teams.away.score}` : "---";   
-            const result = game.teams.home.team.id === 143 ? game.teams.home.score > game.teams.away.score ? "W" : game.teams.home.score < game.teams.away.score ? "L"  : "--" : game.teams.away.score > game.teams.home.score ? "W" : game.teams.away.score < game.teams.home.score ? "L" : "--";
-            const currentDate = new Date();
+            
+            let resultScore = game.status.abstractGameCode === "F" ? `${game.teams.home.score}-${game.teams.away.score}` : "---";
+            
+            let result = game.teams.home.team.id === 143 ? game.teams.home.score > game.teams.away.score ? "W" : game.teams.home.score < game.teams.away.score ? "L"  : "--" : game.teams.away.score > game.teams.home.score ? "W" : game.teams.away.score < game.teams.home.score ? "L" : "--";
+            
+            let currentDate = new Date();
             if (gameDate> currentDate) {
                 record = "N/A";
                 philsRecord = "N/A";
@@ -133,17 +133,17 @@ async function loadScheduleData() {
             }
             
             const row=`
-            <tr>
-            <td>${day}</td>
-            <td>${date}</td>
-            <td>${time}</td>
-            <td>${opponent}</td>
-            <td>${record}</td>
-            <td>${philsRecord}</td>
-            <td>${homeAway}</td>
-            <td>${result} / ${resultScore}</td>
-            </tr>
-            `;
+                <tr>
+                <td>${day}</td>
+                <td>${date}</td>
+                <td>${time}</td>
+                <td>${opponent}</td>
+                <td>${record}</td>
+                <td>${philsRecord}</td>
+                <td>${homeAway}</td>
+                <td>${result} / ${resultScore}</td>
+                </tr>
+                `;
 
         document.getElementById("scheduleTable").insertAdjacentHTML("beforeend",row);
         /*document.getElementById("philsRecord").innerText = `Phillies Record: ${philsRecord}`;*/

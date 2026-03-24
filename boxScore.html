@@ -93,6 +93,21 @@
             background-color: #e81828;
             color: white;
         }
+
+        .game-Status {
+        height: 50vh;
+        background-image: repeating-linear-gradient(to right, white, white 50px, rgb(232, 24, 40) 50px,  rgb(232, 24, 40) 52px);
+        background-size: 100%;
+        border: 20px, solid rgb(232, 24, 40); /*phillies red border*/
+        color:rgb(232, 24, 40); /*phillies red color*/
+        font-size: 75px;
+        font-weight: bold;
+        text-align: center;
+        background-size: cover;
+        display: flex;
+        justify-content: center; /* Centers horizontally along the main axis */
+        align-items: center; /* Centers vertically along the cross axis */
+    }
     </style>
 </head>
 
@@ -128,7 +143,7 @@ function backgroundAndTextColor(homeGame,gameHour){
     let day = String(today.getDate()).padStart(2, "0");
     today = `${year}-${month}-${day}`;
     /*today = "2026-03-28"; this is opening day for the 2026 season.*/
-    if (today === "2026-03-28") { /*Opening Day is March 28, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
+    if (today === "2026-03-26") { /*Opening Day is March 28, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
         const philliesODElement = document.getElementById("phillies-color"); 
         const stateClass = "pinstripes";
         philliesODElement.classList.add(stateClass);
@@ -175,23 +190,24 @@ async function loadGameData() {
     month = String(dayTime.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
     day = String(dayTime.getDate()).padStart(2, "0");
     let today = `${year}-${month}-${day}`;
-    /*let today = "2026-03-24";*/
+    /*let today = "2026-03-23";*/
 
     const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${today}`;
     const res = await fetch(url);
     const schedAPI = await res.json();
 
     if (!schedAPI.dates || schedAPI.dates.length === 0) {
-        document.getElementById("boxscore").innerHTML = "<div class='inning'><p>No game scheduled for today</p></div>";
+        let pageTitle = "";
+        document.getElementById("pageTitle").innerText = pageTitle;
+        document.getElementById("boxscore").innerHTML = "<div class='game-Status'><p>No game scheduled for today</p></div>";
         return;
     }
 
     const gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
     /*const gamePk = 831605;*/
-
-let guess = 8;
-
-
+    /*const pageTitle = "Phillies Box Score - " + formatDate(schedAPI.dates[0].date); - if i want the date use this line*/
+    /*const pageTitle = "Phillies Box Score";
+    document.getElementById("pageTitle").innerText = pageTitle;*/
     const TEAM_ID = 143;
     const game=schedAPI.dates[0].games[0];
     const isHomeGame=game.teams.home.team.id===TEAM_ID;

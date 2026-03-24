@@ -82,6 +82,10 @@
 
 </div>
 
+<button onclick="window.location.href='index.html'">
+  Return to Did the Phillies Win Today?
+</button>
+
 <script>
 
 const TEAM_ID = 143;
@@ -162,7 +166,7 @@ async function fetchGamePk(){
 
     if(data.dates[0] === undefined){
 
-        document.body.innerHTML= `<div class="game-Status">No Phillies game today</div>`;
+        document.body.innerHTML= `<div class="game-Status">No game scheduled for today</div>`;
 
         return
     }
@@ -194,7 +198,7 @@ async function loadLineups(){
     if (gamePk === 'no-game') return;
 
     if(!gamePk) return;
-
+    
     const url=`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`;
 
     const res=await fetch(url);
