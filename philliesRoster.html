@@ -126,7 +126,7 @@ async function fetchRoster(){
 
         /*Game Type idenfier is S for Spring Training, R for Regular Season and P for Postseason*/
 
-        const statsURL = `https://statsapi.mlb.com/api/v1/people/${playerID}/stats?stats=season&season=2026&gameType=S`;
+        const statsURL = `https://statsapi.mlb.com/api/v1/people/${playerID}/stats?stats=season&season=2026&gameType=R`;
         const statsRes=await fetch(statsURL);
         const personStatsData=await statsRes.json();
 
