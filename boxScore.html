@@ -142,7 +142,7 @@ function backgroundAndTextColor(homeGame,gameHour){
     let month = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
     let day = String(today.getDate()).padStart(2, "0");
     today = `${year}-${month}-${day}`;
-    /*today = "2026-03-28"; this is opening day for the 2026 season.*/
+    /*today = "2026-03-26"; this is opening day for the 2026 season.*/
     if (today === "2026-03-26") { /*Opening Day is March 28, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
         const philliesODElement = document.getElementById("phillies-color"); 
         const stateClass = "pinstripes";

@@ -82,9 +82,9 @@
 
 </div>
 
-<button onclick="window.location.href='index.html'">
+<!-- <button onclick="window.location.href='index.html'">
   Return to Did the Phillies Win Today?
-</button>
+</button> -->
 
 <script>
 
@@ -112,8 +112,8 @@ function getDayOfWeek(){
 function backgroundAndTextColor(homeGame,gameHour){
 
     let today = getTodayDate();
-    /*today = "2026-03-28"; this is opening day for the 2026 season.  I am hardcoding this for now, but I will need to update this later to check if the date is opening day for the season.  This is because they will be wearing pinstripes regardless of if it is a day or night game. */
-    if (today === "2026-03-28") { /*Opening Day is March 28, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
+    /*today = "2026-03-26"; this is opening day for the 2026 season.  I am hardcoding this for now, but I will need to update this later to check if the date is opening day for the season.  This is because they will be wearing pinstripes regardless of if it is a day or night game. */
+    if (today === "2026-03-26") { /*Opening Day is March 26, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
         const philliesODElement = document.getElementById("phillies-color"); 
         const stateClass = "pinstripes";
         philliesODElement.classList.add(stateClass);
