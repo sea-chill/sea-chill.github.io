@@ -115,7 +115,31 @@ async function loadScheduleData() {
             
             let resultScore = game.status.abstractGameCode === "F" ? `${game.teams.home.score}-${game.teams.away.score}` : "---";
             
-            let result = game.teams.home.team.id === 143 ? game.teams.home.score > game.teams.away.score ? "W" : game.teams.home.score < game.teams.away.score ? "L"  : "--" : game.teams.away.score > game.teams.home.score ? "W" : game.teams.away.score < game.teams.home.score ? "L" : "--";
+            /*let result = game.teams.home.team.id === 143 ? game.teams.home.score > game.teams.away.score ? "W" : game.teams.home.score < game.teams.away.score ? "L"  : "--" : game.teams.away.score > game.teams.home.score ? "W" : game.teams.away.score < game.teams.home.score ? "L" : "--";*/
+            
+            let result = "--";
+
+            let testResult = game.status.abstractGameCode;
+
+            if (testResult === "F") {
+                const isHome = game.teams.home.team.id === 143;
+
+                const philliesScore = isHome
+                    ? game.teams.home.score
+                    : game.teams.away.score;
+
+                const opponentScore = isHome
+                    ? game.teams.away.score
+                    : game.teams.home.score;
+
+                if (philliesScore > opponentScore) {
+                    result = "W";
+                } else if (philliesScore < opponentScore) {
+                    result = "L";
+                } else {
+                    result = "--";
+                }
+            }
             
             let currentDate = new Date();
             if (gameDate> currentDate) {
