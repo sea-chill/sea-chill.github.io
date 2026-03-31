@@ -127,6 +127,43 @@
 
 <script>
 
+/* get the win, loss, save records for the pitchers in this game and display them in the decisions section of the box score*/
+
+async function wlsRecords(winnerID, loserID, saveID) {
+    let winnerRecord = "";
+    let loserRecord = "";
+    let saves = "";
+
+    if (winnerID) {
+        const winnerURL = `https://statsapi.mlb.com/api/v1/people/${winnerID}/stats?stats=season&season=2026&gameType=R`;
+        const winnerRes = await fetch(winnerURL);
+        const winnerStatsData = await winnerRes.json();
+        winnerRecord = `${winnerStatsData.stats[0].splits[0].stat.wins} - ${winnerStatsData.stats[0].splits[0].stat.losses}`;
+    }
+
+    if (loserID) {
+        const loserURL = `https://statsapi.mlb.com/api/v1/people/${loserID}/stats?stats=season&season=2026&gameType=R`;
+        const loserRes = await fetch(loserURL);
+        const loserStatsData = await loserRes.json();
+        loserRecord = `${loserStatsData.stats[0].splits[0].stat.wins} - ${loserStatsData.stats[0].splits[0].stat.losses}`  ;
+    }
+
+    if (saveID) {
+        const saveURL = `https://statsapi.mlb.com/api/v1/people/${saveID}/stats?stats=season&season=2026&gameType=R`;
+        const saveRes = await fetch(saveURL);
+        const saveStatsData = await saveRes.json();
+        saves = `${saveStatsData.stats[0].splits[0].stat.saves}`;
+    } else {
+        saves = "";
+    }
+
+    return {
+        winnerRecord,
+        loserRecord,
+        saves
+    };
+}
+
 /* Day of week */
 
 function getDayOfWeek(){
@@ -190,7 +227,7 @@ async function loadGameData() {
     month = String(dayTime.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
     day = String(dayTime.getDate()).padStart(2, "0");
     let today = `${year}-${month}-${day}`;
-    /*let today = "2026-03-23";*/
+    /*let today = "2026-03-29"; /*This is a special case for opening day 2026, which is March 28, 2026.  This is to test the opening day uniform which will be pinstripes regardless of if it is a day or night game.*/
 
     const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${today}`;
     const res = await fetch(url);
@@ -322,6 +359,7 @@ function buildPitchingTable(team) {
                 <th>ER</th>
                 <th>BB</th>
                 <th>SO</th>
+                <th>NP</th>
             </tr>
     `;
 
@@ -338,6 +376,7 @@ function buildPitchingTable(team) {
                     <td>${team.players[idPlayer].stats.pitching.earnedRuns}</td>
                     <td>${team.players[idPlayer].stats.pitching.baseOnBalls}</td>
                     <td>${team.players[idPlayer].stats.pitching.strikeOuts}</td>
+                    <td>${team.players[idPlayer].stats.pitching.pitchesThrown}</td>
                 </tr>
             `;
     }
@@ -390,7 +429,7 @@ function buildLineScore(lineData, boxData) {
 
 }
 
-function displayFullGame(boxData, lineData, liveData, schedAPI) {
+ async function displayFullGame(boxData, lineData, liveData, schedAPI) {
 
     let venue = "N/A";
     let attendance = "N/A";
@@ -456,11 +495,20 @@ function displayFullGame(boxData, lineData, liveData, schedAPI) {
     
     // Decisions
     let decisionsHTML = "";
+    
     if (liveData.liveData.decisions) {
+        
+        /*get records and number of saves for the pitchers in thsi game*/
+        let winnerID = liveData.liveData.decisions.winner?.id;
+        let loserID = liveData.liveData.decisions.loser?.id;
+        let saveID = liveData.liveData.decisions.save?.id;
+
+        let { winnerRecord, loserRecord, saves } = await wlsRecords(winnerID, loserID, saveID);
+
         decisionsHTML = `
-            <div><strong>WP:</strong> ${liveData.liveData.decisions.winner?.fullName || "N/A"}</div>
-            <div><strong>LP:</strong> ${liveData.liveData.decisions.loser?.fullName || "N/A"}</div>
-            <div><strong>Save:</strong> ${liveData.liveData.decisions.save?.fullName || "None"}</div>
+            <div><strong>WP:</strong> ${liveData.liveData.decisions.winner?.fullName || "N/A"} (${winnerRecord})</div>
+            <div><strong>LP:</strong> ${liveData.liveData.decisions.loser?.fullName || "N/A"} (${loserRecord})</div>
+            <div><strong>Save:</strong> ${liveData.liveData.decisions.save?.fullName || "None"} (${saves})</div>
         `;
     }
 
