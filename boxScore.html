@@ -227,7 +227,7 @@ async function loadGameData() {
     month = String(dayTime.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
     day = String(dayTime.getDate()).padStart(2, "0");
     let today = `${year}-${month}-${day}`;
-    /*let today = "2026-03-29"; /*This is a special case for opening day 2026, which is March 28, 2026.  This is to test the opening day uniform which will be pinstripes regardless of if it is a day or night game.*/
+    /*let today = "2026-03-28"; /*test date*/
 
     const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${today}`;
     const res = await fetch(url);
@@ -376,7 +376,7 @@ function buildPitchingTable(team) {
                     <td>${team.players[idPlayer].stats.pitching.earnedRuns}</td>
                     <td>${team.players[idPlayer].stats.pitching.baseOnBalls}</td>
                     <td>${team.players[idPlayer].stats.pitching.strikeOuts}</td>
-                    <td>${team.players[idPlayer].stats.pitching.pitchesThrown}</td>
+                    <td>${team.players[idPlayer].stats.pitching.pitchesThrown || ""}</td>
                 </tr>
             `;
     }
