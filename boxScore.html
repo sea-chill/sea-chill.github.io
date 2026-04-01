@@ -376,7 +376,7 @@ function buildPitchingTable(team) {
                     <td>${team.players[idPlayer].stats.pitching.earnedRuns}</td>
                     <td>${team.players[idPlayer].stats.pitching.baseOnBalls}</td>
                     <td>${team.players[idPlayer].stats.pitching.strikeOuts}</td>
-                    <td>${team.players[idPlayer].stats.pitching.pitchesThrown || ""}</td>
+                    <td>${team.players[idPlayer].stats.pitching.pitchesThrown || "0"}</td>
                 </tr>
             `;
     }
@@ -502,13 +502,21 @@ function buildLineScore(lineData, boxData) {
         let winnerID = liveData.liveData.decisions.winner?.id;
         let loserID = liveData.liveData.decisions.loser?.id;
         let saveID = liveData.liveData.decisions.save?.id;
+        let save = "";
 
         let { winnerRecord, loserRecord, saves } = await wlsRecords(winnerID, loserID, saveID);
 
+        if (saves) {
+                save = `${liveData.liveData.decisions.save?.fullName} (${saves})`;
+        } else {
+                save = 'None';
+            }
+
+        /*<div><strong>Save:</strong> ${liveData.liveData.decisions.save?.fullName || "None"} (${saves})</div>*/
         decisionsHTML = `
             <div><strong>WP:</strong> ${liveData.liveData.decisions.winner?.fullName || "N/A"} (${winnerRecord})</div>
             <div><strong>LP:</strong> ${liveData.liveData.decisions.loser?.fullName || "N/A"} (${loserRecord})</div>
-            <div><strong>Save:</strong> ${liveData.liveData.decisions.save?.fullName || "None"} (${saves})</div>
+            <div><strong>Save: </strong> ${save}</div>
         `;
     }
 
