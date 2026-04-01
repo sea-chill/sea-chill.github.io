@@ -339,6 +339,7 @@ async function runDailyReport() {
           break;
         case "Final":
         case "Completed Early":
+        case "Game Over":
           const home = game.teams.home;
           const away = game.teams.away;
 
