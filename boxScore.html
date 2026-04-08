@@ -456,6 +456,8 @@ function buildLineScore(lineData, boxData) {
         }
     });
     
+    firstPitch = formatTime(schedAPI.dates[0].games[0].gameDate);
+
     document.getElementById("gameInfo").innerText =
         `${venue} | Attendance: ${attendance}`;
     document.getElementById("weatherInfo").innerText =
