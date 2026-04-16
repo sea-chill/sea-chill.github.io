@@ -127,29 +127,56 @@
 
 <script>
 
+const params = new URLSearchParams(window.location.search);
+let schedGamePk = params.get("gamePk");
+const philsProbablePitcher = params.get("philsProbablePitcher");
+const opponentProbablePitcher = params.get("opponentProbablePitcher");
+const compareDate = params.get("comp");
+const ppCompareDate = new Date(compareDate + "T00:00:00");
+let gamePk;
+const displayCompareDate = compareDate ? new Date(compareDate + "T00:00:00").toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    }) : null;
+
+const today = new Date();
+today.setHours(0, 0, 0, 0); /* Set time to midnight to compare only the date portion*/
+
+const localDate = [
+  today.getFullYear(),
+  String(today.getMonth() + 1).padStart(2, "0"),
+  String(today.getDate()).padStart(2, "0")
+].join("-");
+
 /* get the win, loss, save records for the pitchers in this game and display them in the decisions section of the box score*/
 
 async function wlsRecords(winnerID, loserID, saveID) {
     let winnerRecord = "";
     let loserRecord = "";
     let saves = "";
+    let startDate = "2026-03-26"; /*Opening Day for the 2026 season.*/
+    let endDate = compareDate ? compareDate : localDate; /*if compareDate is provided, use that as the end date for the record calculation, otherwise use today as the end date to get the most up to date record for the pitchers in this game*/
 
     if (winnerID) {
-        const winnerURL = `https://statsapi.mlb.com/api/v1/people/${winnerID}/stats?stats=season&season=2026&gameType=R`;
+        /*const winnerURL = `https://statsapi.mlb.com/api/v1/people/${winnerID}/stats?stats=season&season=2026&gameType=R`;*/
+        const winnerURL = `https://statsapi.mlb.com/api/v1/people/${winnerID}/stats?stats=byDateRange&startDate=${startDate}&endDate=${endDate}&gameType=R`;
         const winnerRes = await fetch(winnerURL);
         const winnerStatsData = await winnerRes.json();
         winnerRecord = `${winnerStatsData.stats[0].splits[0].stat.wins} - ${winnerStatsData.stats[0].splits[0].stat.losses}`;
     }
 
     if (loserID) {
-        const loserURL = `https://statsapi.mlb.com/api/v1/people/${loserID}/stats?stats=season&season=2026&gameType=R`;
+        /*const loserURL = `https://statsapi.mlb.com/api/v1/people/${loserID}/stats?stats=season&season=2026&gameType=R`;*/
+        const loserURL = `https://statsapi.mlb.com/api/v1/people/${loserID}/stats?stats=byDateRange&startDate=${startDate}&endDate=${endDate}&gameType=R`;
         const loserRes = await fetch(loserURL);
         const loserStatsData = await loserRes.json();
         loserRecord = `${loserStatsData.stats[0].splits[0].stat.wins} - ${loserStatsData.stats[0].splits[0].stat.losses}`  ;
     }
 
     if (saveID) {
-        const saveURL = `https://statsapi.mlb.com/api/v1/people/${saveID}/stats?stats=season&season=2026&gameType=R`;
+        /*const saveURL = `https://statsapi.mlb.com/api/v1/people/${saveID}/stats?stats=season&season=2026&gameType=R`;*/
+        const saveURL = `https://statsapi.mlb.com/api/v1/people/${saveID}/stats?stats=byDateRange&startDate=${startDate}&endDate=${endDate}&gameType=R`;
         const saveRes = await fetch(saveURL);
         const saveStatsData = await saveRes.json();
         saves = `${saveStatsData.stats[0].splits[0].stat.saves}`;
@@ -174,13 +201,30 @@ function getDayOfWeek(){
 
 function backgroundAndTextColor(homeGame,gameHour){
 
-    let today = new Date();
+    /*I don't need this block of text since I already have the date in the right format with the 
+    global code and the variables localDate (for today) or compareDate for past or future game*/
+
+    /*let today = new Date();
     let year = today.getFullYear();
     let month = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
     let day = String(today.getDate()).padStart(2, "0");
-    today = `${year}-${month}-${day}`;
+    today = `${year}-${month}-${day}`;*/
+
+    /*this code sets the date for either today or a past/future date*/
+
+    let specialDate = "";
+    let dayOfWeek;
+
+    if (ppCompareDate > today || ppCompareDate < today) {
+        specialDate = compareDate;
+        dayOfWeek = ppCompareDate.getDay();
+    } else {
+        specialDate = localDate;
+        dayOfWeek = today.getDay();
+    }
+
     /*today = "2026-03-26"; this is opening day for the 2026 season.*/
-    if (today === "2026-03-26") { /*Opening Day is March 28, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
+    if (specialDate === "2026-03-26") { /*Opening Day is March 28, 2026.  This is a special case because they will be wearing pinstripes regardless of if it is a day or night game. */
         const philliesODElement = document.getElementById("phillies-color"); 
         const stateClass = "pinstripes";
         philliesODElement.classList.add(stateClass);
@@ -191,8 +235,13 @@ function backgroundAndTextColor(homeGame,gameHour){
 
     let stateClass;
 
-    const dayOfWeek = getDayOfWeek();
+    /*I need to use either today's game or a previous game to determine the uniform style*/
+    /*const dayOfWeek = getDayOfWeek();*/
 
+    /*get day of week and hour of game to determine uniform style.  This is for the date of the game and 
+    not necessarily today's date since the user could be viewing a past or future game from the schedule page.
+    I already have game hour so just need day of week for the date of the game*/  
+    
     if(dayOfWeek===4){
 
         stateClass="powder-blue";
@@ -222,16 +271,36 @@ function backgroundAndTextColor(homeGame,gameHour){
 
 async function loadGameData() {
 
-    dayTime = new Date();
-    year = String(dayTime.getFullYear());
-    month = String(dayTime.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    day = String(dayTime.getDate()).padStart(2, "0");
-    let today = `${year}-${month}-${day}`;
+    /*Removing this block of code since it is redundant with the global code that sets the date*/
+
+    /*let dayTime = new Date();
+    let year = String(dayTime.getFullYear());
+    let month = String(dayTime.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    let day = String(dayTime.getDate()).padStart(2, "0");
+    let today = `${year}-${month}-${day}`;*/
     /*let today = "2026-03-28"; /*test date*/
 
-    const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${today}`;
+    /*check the date to see if ppCompareDate is after today, if it is then we know the user is trying to view 
+    a future game from the schedule page and we should display the probable pitchers for that game instead 
+    of the box score information since there will be no data to pull for the box score yet.*/
+
+    let gameDay;
+
+    if (ppCompareDate > today || ppCompareDate < today) {
+        gameDay = compareDate
+    } else {
+        gameDay = localDate;
+    }
+
+    const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${gameDay}`;
     const res = await fetch(url);
     const schedAPI = await res.json();
+
+    /*4 cases for the gamePk parameter
+    1. No game today - display message that there is no game and hide all other info on the page
+    2. Game today
+    3. Game in the past
+    4. Game in the future */
 
     if (!schedAPI.dates || schedAPI.dates.length === 0) {
         let pageTitle = "";
@@ -240,7 +309,24 @@ async function loadGameData() {
         return;
     }
 
-    const gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
+    /*get paramters from the schedule URL to determine which game to pull data for and the probable pitchers for that game to display on the box score page*/
+    /*const params = new URLSearchParams(window.location.search);
+    let schedGamePk = params.get("gamePk");
+    const philsProbablePitcher = params.get("philsProbablePitcher");
+    const opponentProbablePitcher = params.get("opponentProbablePitcher");
+    const compareDate = params.get("comp");
+    let gamePk;*/
+
+    if (ppCompareDate < today) {
+        gamePk = schedGamePk;
+    } else if (ppCompareDate > today) {
+        gamePk = schedGamePk;
+    } else {
+        gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
+    }
+
+    /*good place to determine if game is today, in the past or the future from the schedule page*/
+    /*gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;*/
     /*const gamePk = 831605;*/
     /*const pageTitle = "Phillies Box Score - " + formatDate(schedAPI.dates[0].date); - if i want the date use this line*/
     /*const pageTitle = "Phillies Box Score";
@@ -458,7 +544,7 @@ function buildLineScore(lineData, boxData) {
     
     firstPitch = formatTime(schedAPI.dates[0].games[0].gameDate);
 
-    document.getElementById("gameInfo").innerText =
+        document.getElementById("gameInfo").innerText =
         `${venue} | Attendance: ${attendance}`;
     document.getElementById("weatherInfo").innerText =
         `Weather: ${weather} | Wind: ${wind}`;
@@ -474,15 +560,15 @@ function buildLineScore(lineData, boxData) {
     /*const attendance = boxData.gameData.gameInfo.attendance || "N/A";*/
 
     const today = new Date();
-    formattedDate = today.toLocaleDateString("en-US", {
+    let formattedDate = today.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric"
     });
    
-    document.title = `Phillies Box Score - ${formattedDate}`;
+    document.title = `Phillies Box Score - ${displayCompareDate || formattedDate}`;
     document.getElementById("pageTitle").innerText =
-        `Phillies Box Score - ${formattedDate}`;
+        `Phillies Box Score - ${displayCompareDate || formattedDate}`;
 
     // Logos
     document.getElementById("logos").innerHTML = `
@@ -490,17 +576,28 @@ function buildLineScore(lineData, boxData) {
         <img src="https://www.mlbstatic.com/team-logos/${opponent.team.id}.svg">
     `;
 
+    if (ppCompareDate > today) {
+        document.getElementById("boxscore").innerHTML = "<div class='score'><p>Probable Pitchers</p></div>";
+        document.getElementById("boxscore").innerHTML += `
+            <div class="inning">
+                <div><strong>${phillies.team.name}:</strong> ${philsProbablePitcher || "TBD"}</div>
+                <div><strong>${opponent.team.name}:</strong> ${opponentProbablePitcher || "TBD"}</div>
+            </div>
+        `;
+        return;
+    }
+
     if (lineData.innings.length === 0) {
         document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Game scheduled for later today</p></div>";
         return;
-    }
+    } 
     
     // Decisions
     let decisionsHTML = "";
     
     if (liveData.liveData.decisions) {
         
-        /*get records and number of saves for the pitchers in thsi game*/
+        /*get records and number of saves for the pitchers in this game*/
         let winnerID = liveData.liveData.decisions.winner?.id;
         let loserID = liveData.liveData.decisions.loser?.id;
         let saveID = liveData.liveData.decisions.save?.id;

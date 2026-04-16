@@ -88,7 +88,8 @@
 async function loadScheduleData() {
 
     /* using the game type parameter S - spring training, R - regular season, D - postseason */
-    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=143&startDate=2026-02-21&endDate=2026-10-30&gameTypes=R`;
+    /* using the hydrate parameter to get the probable pitchers for each game, which is what I will use to add that info to the schedule page*/
+    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=143&startDate=2026-02-21&endDate=2026-10-30&gameTypes=R&hydrate=probablePitcher`;
     const res =await fetch(url);
     const schedAPI =await res.json();
 
@@ -98,6 +99,10 @@ async function loadScheduleData() {
     
         games.forEach((game, i) => {
             let gameDate = new Date(game.gameDate);
+
+            let compareDate = gameDate.toISOString().split('T')[0]; // Get the date part in YYYY-MM-DD format
+
+            let gamePk = game.gamePk; // Get the gamePk for the current game
 
             let day = gameDate.toLocaleDateString('en-US', { weekday: 'long' });
            
@@ -121,8 +126,10 @@ async function loadScheduleData() {
 
             let testResult = game.status.abstractGameCode;
 
+            const isHome = game.teams.home.team.id === 143;
+
             if (testResult === "F") {
-                const isHome = game.teams.home.team.id === 143;
+                /*const isHome = game.teams.home.team.id === 143;*/
 
                 const philliesScore = isHome
                     ? game.teams.home.score
@@ -142,10 +149,19 @@ async function loadScheduleData() {
             }
             
             let currentDate = new Date();
+            let philsProbablePitcher = "TBD";
+            let opponentProbablePitcher = "TBD";
             if (gameDate> currentDate) {
                 record = "N/A";
                 philsRecord = "N/A";
                 resultScore = "TBD";
+                if (isHome) {
+                    philsProbablePitcher = game.teams.home.probablePitcher ? game.teams.home.probablePitcher.fullName : "TBD";
+                    opponentProbablePitcher = game.teams.away.probablePitcher ? game.teams.away.probablePitcher.fullName : "TBD";
+                } else {
+                    philsProbablePitcher = game.teams.away.probablePitcher ? game.teams.away.probablePitcher.fullName : "TBD";
+                    opponentProbablePitcher = game.teams.home.probablePitcher ? game.teams.home.probablePitcher.fullName : "TBD";
+                }
             } else if (game.status.abstractGameCode === "F") {
                 record = game.teams.home.team.id !== 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
                 philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
@@ -155,6 +171,8 @@ async function loadScheduleData() {
                 philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
                 resultScore = "TBD";
             }
+
+            let totalResult = `${result} / ${resultScore}`;
             
             const row=`
                 <tr>
@@ -165,9 +183,11 @@ async function loadScheduleData() {
                 <td>${record}</td>
                 <td>${philsRecord}</td>
                 <td>${homeAway}</td>
-                <td>${result} / ${resultScore}</td>
+                <td><a href="boxScore.html?gamePk=${gamePk}&philsProbablePitcher=${encodeURIComponent(philsProbablePitcher)}&opponentProbablePitcher=${encodeURIComponent(opponentProbablePitcher)}&comp=${encodeURIComponent(compareDate)}">${totalResult}</a></td>
                 </tr>
                 `;
+                /*<td>${result} / ${resultScore}</td>*/
+                /*<a href="startingLineup.html">View Starting Lineup</a>*/  
 
         document.getElementById("scheduleTable").insertAdjacentHTML("beforeend",row);
         /*document.getElementById("philsRecord").innerText = `Phillies Record: ${philsRecord}`;*/
