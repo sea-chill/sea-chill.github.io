@@ -577,7 +577,7 @@ function buildLineScore(lineData, boxData) {
     `;
 
     if (ppCompareDate > today) {
-        document.getElementById("boxscore").innerHTML = "<div class='score'><p>Probable Pitchers</p></div>";
+        document.getElementById("boxscore").innerHTML = "<div class='score'><p>Probable Starting Pitchers</p></div>";
         document.getElementById("boxscore").innerHTML += `
             <div class="inning">
                 <div><strong>${phillies.team.name}:</strong> ${philsProbablePitcher || "TBD"}</div>
