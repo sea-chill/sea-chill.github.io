@@ -65,7 +65,7 @@ async function fetchSchedule() {
   let date = getTodayDate();
 
   /*test code to set the date*/
-  /*date = "2025-08-10";*/
+  /*date = "2026-04-29";*/
   /*there was a doubleheader on July 2, 2025*/
   /*game on July 1 was postponed */
 

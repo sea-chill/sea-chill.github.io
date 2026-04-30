@@ -131,8 +131,13 @@ const params = new URLSearchParams(window.location.search);
 let schedGamePk = params.get("gamePk");
 const philsProbablePitcher = params.get("philsProbablePitcher");
 const opponentProbablePitcher = params.get("opponentProbablePitcher");
+let rescheduleFlag = params.get("rescheduleFlag");
+
+const today = new Date();
+today.setHours(0, 0, 0, 0); /* Set time to midnight to compare only the date portion*/
+
 const compareDate = params.get("comp");
-const ppCompareDate = new Date(compareDate + "T00:00:00");
+let ppCompareDate = new Date(compareDate ? compareDate + "T00:00:00" : today);
 let gamePk;
 const displayCompareDate = compareDate ? new Date(compareDate + "T00:00:00").toLocaleDateString("en-US", {
         year: "numeric",
@@ -140,7 +145,7 @@ const displayCompareDate = compareDate ? new Date(compareDate + "T00:00:00").toL
         day: "numeric"
     }) : null;
 
-const today = new Date();
+/*const today = new Date();
 today.setHours(0, 0, 0, 0); /* Set time to midnight to compare only the date portion*/
 
 const localDate = [
@@ -148,6 +153,12 @@ const localDate = [
   String(today.getMonth() + 1).padStart(2, "0"),
   String(today.getDate()).padStart(2, "0")
 ].join("-");
+
+let formattedDate = today.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
 
 /* get the win, loss, save records for the pitchers in this game and display them in the decisions section of the box score*/
 
@@ -285,6 +296,8 @@ async function loadGameData() {
     of the box score information since there will be no data to pull for the box score yet.*/
 
     let gameDay;
+    let game = [];
+    rescheduleFlag = 0;
 
     if (ppCompareDate > today || ppCompareDate < today) {
         gameDay = compareDate
@@ -295,6 +308,10 @@ async function loadGameData() {
     const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${gameDay}`;
     const res = await fetch(url);
     const schedAPI = await res.json();
+
+    if (schedAPI.dates[0].games[0].rescheduleDate != null) {
+                rescheduleFlag = 1;
+            }
 
     /*4 cases for the gamePk parameter
     1. No game today - display message that there is no game and hide all other info on the page
@@ -317,12 +334,27 @@ async function loadGameData() {
     const compareDate = params.get("comp");
     let gamePk;*/
 
+    /* need to get gamepk for doubleheaders*/
+    /*first check to see if there are two games, if so then check if first game is over.  if not then show game 1
+    box score.  If it is over then show game two information*/
+
     if (ppCompareDate < today) {
         gamePk = schedGamePk;
+        game = schedAPI.dates[0].games[0];
     } else if (ppCompareDate > today) {
         gamePk = schedGamePk;
+        game = schedAPI.dates[0].games[0];
     } else {
-        gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
+            if (schedAPI.totalGames = 2) {
+                if (schedAPI.dates[0].games[0].status.statusCode === "S" || schedAPI.dates[0].games[0].status.statusCode === "P" || schedAPI.dates[0].games[0].status.statusCode === "PW" || schedAPI.dates[0].games[0].status.abstractGameCode === "L") {
+                    gamePk = schedAPI.dates[0]?.games[0]?.gamePk;
+                    game = schedAPI.dates[0].games[0];
+            }   else {
+                    gamePk = schedAPI.dates[0]?.games[1]?.gamePk || null;
+                    game = schedAPI.dates[0].games[1];
+            }
+            }
+        /*gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;*/
     }
 
     /*good place to determine if game is today, in the past or the future from the schedule page*/
@@ -332,11 +364,15 @@ async function loadGameData() {
     /*const pageTitle = "Phillies Box Score";
     document.getElementById("pageTitle").innerText = pageTitle;*/
     const TEAM_ID = 143;
-    const game=schedAPI.dates[0].games[0];
+    /*const game=schedAPI.dates[0].games[0];*/
     const isHomeGame=game.teams.home.team.id===TEAM_ID;
     const gameHour=new Date(game.gameDate).getHours();
 
     backgroundAndTextColor(isHomeGame,gameHour);
+
+    if (schedGamePk != null) {
+        gamePk = schedGamePk;
+    }
 
     const [boxRes, lineRes, liveRes] = await Promise.all([
         fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`),
@@ -523,6 +559,8 @@ function buildLineScore(lineData, boxData) {
     let timeOfGame = "N/A";
     let weather = "N/A";
     let wind = "N/A";
+    let gameNum = 0;
+    let doubleGame = "";
 
     boxData.info.forEach((info,i) => {
         const label = info.label;
@@ -542,7 +580,28 @@ function buildLineScore(lineData, boxData) {
         }
     });
     
-    firstPitch = formatTime(schedAPI.dates[0].games[0].gameDate);
+    if (schedAPI.totalGames === 2) {
+        if (schedAPI.dates[0].games[0].status.statusCode !== "F" || schedAPI.dates[0].games[0].status.statusCode === "O") {
+            gameNum = 0;
+        } else gameNum = 1;
+    }
+    
+    if (schedAPI.totalGames === 2) {
+        if (schedGamePk) {
+            if (schedAPI.dates[0].games[0].gamePk == schedGamePk) {
+                doubleGame = "(Game 1)"
+            } else {
+                doubleGame = "(Game 2)"
+            }
+        } else {
+            if (schedAPI.dates[0].games[0].gamePk == gamePk) {
+                doubleGame = "(Game 1)"
+            } else {
+                doubleGame = "(Game 2)"
+            }
+        }
+}
+    firstPitch = formatTime(schedAPI.dates[0].games[gameNum].gameDate);
 
         document.getElementById("gameInfo").innerText =
         `${venue} | Attendance: ${attendance}`;
@@ -559,16 +618,20 @@ function buildLineScore(lineData, boxData) {
 
     /*const attendance = boxData.gameData.gameInfo.attendance || "N/A";*/
 
-    const today = new Date();
+    /*the variable today is around too much.  Take this formatted date logic to the top of the script
+    to use it below*/
+    /*const today = new Date();
     let formattedDate = today.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric"
-    });
-   
-    document.title = `Phillies Box Score - ${displayCompareDate || formattedDate}`;
+    });*/
+
+   /*gamenumber = schedAPI.dates[0].games[0].gameNumber;*/
+
+    document.title = `Phillies Box Score - ${displayCompareDate || formattedDate} ${doubleGame}`;
     document.getElementById("pageTitle").innerText =
-        `Phillies Box Score - ${displayCompareDate || formattedDate}`;
+        `Phillies Box Score - ${displayCompareDate || formattedDate} ${doubleGame}`;
 
     // Logos
     document.getElementById("logos").innerHTML = `
@@ -576,6 +639,42 @@ function buildLineScore(lineData, boxData) {
         <img src="https://www.mlbstatic.com/team-logos/${opponent.team.id}.svg">
     `;
 
+    /*if there is a doubleheader state this*/
+    if (schedAPI.totalItems === 2)  {
+        if (schedAPI.dates[0].games[0].status.statusCode === "S") {
+            document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Phillies have a doubleheader today</p></div>";
+            return;
+        }
+    }
+
+    /*if the game was postponed state this*/
+
+    if (schedAPI.dates[0].games[0].status.codedGameState === "D") {
+        if (schedAPI.dates[0].games[0].status.statusCode === "DR") {
+            document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Today's Phillies game was postponed due to rain</p></div>";
+            return;    
+        } else if (schedAPI.dates[0].games[0].status.statusCode === "DS") {
+            document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Today's Phillies game was postponed due to snow</p></div>";
+            return;    
+        } else if (schedAPI.dates[0].games[0].status.statusCode === "DC") {
+            document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Today's Phillies game was cancelled</p></div>";
+            return;  
+        } else if (schedAPI.dates[0].games[0].status.statusCode === "U") {
+            document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Today's Phillies game was suspended</p></div>";
+            return;  
+        } else {
+            document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Today's Phillies game was postponed</p></div>";
+            return;
+        }
+    }
+
+    if (compareDate === null) {
+        if (lineData.innings.length === 0) {
+            document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Game scheduled for later today</p></div>";
+            return;
+        } 
+        }
+    
     if (ppCompareDate > today) {
         document.getElementById("boxscore").innerHTML = "<div class='score'><p>Probable Starting Pitchers</p></div>";
         document.getElementById("boxscore").innerHTML += `
@@ -587,10 +686,10 @@ function buildLineScore(lineData, boxData) {
         return;
     }
 
-    if (lineData.innings.length === 0) {
+    /*if (lineData.innings.length === 0) {
         document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Game scheduled for later today</p></div>";
         return;
-    } 
+    } */
     
     // Decisions
     let decisionsHTML = "";

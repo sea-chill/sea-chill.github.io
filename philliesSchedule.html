@@ -92,12 +92,14 @@ async function loadScheduleData() {
     const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=143&startDate=2026-02-21&endDate=2026-10-30&gameTypes=R&hydrate=probablePitcher`;
     const res =await fetch(url);
     const schedAPI =await res.json();
+    let rescheduleFlag = 0;
 
         const games = schedAPI.dates.flatMap(date => date.games);
         /*let record = "N/A";
         let resultScore = "TBD";*/
     
         games.forEach((game, i) => {
+
             let gameDate = new Date(game.gameDate);
 
             let compareDate = gameDate.toISOString().split('T')[0]; // Get the date part in YYYY-MM-DD format
@@ -111,10 +113,13 @@ async function loadScheduleData() {
             let time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
             
             let opponent = game.teams.home.team.id === 143 ? game.teams.away.team.name : game.teams.home.team.name;
+
+            /*fix below since during a game the record shown for opponent is the Phillies record*/
+            /*I think this is now fixed but need to check during a game*/
             
-            let record = game.teams.home.team.id === 143 ? game.teams.home.leagueRecord.wins - game.teams.home.leagueRecord.losses : game.teams.away.leagueRecord.wins - game.teams.away.leagueRecord.losses;
+            let record = game.teams.home.team.id !== 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
             
-            let philsRecord = game.teams.home.team.id === 143 ? game.teams.home.leagueRecord.wins - game.teams.home.leagueRecord.losses : game.teams.away.leagueRecord.wins - game.teams.away.leagueRecord.losses;
+            let philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
             
             let homeAway = game.teams.home.team.id === 143 ? "Home" : "Away";
             
@@ -148,10 +153,16 @@ async function loadScheduleData() {
                 }
             }
             
-            let currentDate = new Date();
+            /*check to see if this game has been reschedule and pass result (0=no; 1=yes) to boxscore*/
+
+            let currentDate = new Date(); /*fix this so the comparison below is just on the m/d/y and not with the time*/
             let philsProbablePitcher = "TBD";
             let opponentProbablePitcher = "TBD";
-            if (gameDate> currentDate) {
+            /*fix this if then else statement to account for games that are postponed, etc.  
+            resultScore is showing up as 'undefined'.  Maybe show as postponed or 'PP"
+            For postponed games the abstract game code is 'F'.  Coded game code is 'D'*/
+
+            if (gameDate > currentDate) {
                 record = "N/A";
                 philsRecord = "N/A";
                 resultScore = "TBD";
@@ -165,7 +176,10 @@ async function loadScheduleData() {
             } else if (game.status.abstractGameCode === "F") {
                 record = game.teams.home.team.id !== 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
                 philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
-                resultScore = `${game.teams.home.score}-${game.teams.away.score}`;
+                resultScore = game.status.codedGameState === "D"
+                    ? "PPD"
+                    : `${game.teams.home.score}-${game.teams.away.score}`;
+                /*resultScore = `${game.teams.home.score}-${game.teams.away.score}` : "PPD";*/
             } else {
                 record = game.teams.home.team.id === 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
                 philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
@@ -173,6 +187,10 @@ async function loadScheduleData() {
             }
 
             let totalResult = `${result} / ${resultScore}`;
+            /*rescheduleFlag = 1;*/
+            if (schedAPI.dates[0].games[0].rescheduleDate) {
+                rescheduleFlag = 1;
+            }
             
             const row=`
                 <tr>
@@ -183,7 +201,7 @@ async function loadScheduleData() {
                 <td>${record}</td>
                 <td>${philsRecord}</td>
                 <td>${homeAway}</td>
-                <td><a href="boxScore.html?gamePk=${gamePk}&philsProbablePitcher=${encodeURIComponent(philsProbablePitcher)}&opponentProbablePitcher=${encodeURIComponent(opponentProbablePitcher)}&comp=${encodeURIComponent(compareDate)}">${totalResult}</a></td>
+                <td><a href="boxScore.html?rescheduleFlag=${rescheduleFlag}&gamePk=${gamePk}&philsProbablePitcher=${encodeURIComponent(philsProbablePitcher)}&opponentProbablePitcher=${encodeURIComponent(opponentProbablePitcher)}&comp=${encodeURIComponent(compareDate)}">${totalResult}</a></td>
                 </tr>
                 `;
                 /*<td>${result} / ${resultScore}</td>*/
