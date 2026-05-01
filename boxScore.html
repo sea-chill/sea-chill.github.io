@@ -345,7 +345,7 @@ async function loadGameData() {
         gamePk = schedGamePk;
         game = schedAPI.dates[0].games[0];
     } else {
-            if (schedAPI.totalGames = 2) {
+            if (schedAPI.totalGames == 2) {
                 if (schedAPI.dates[0].games[0].status.statusCode === "S" || schedAPI.dates[0].games[0].status.statusCode === "P" || schedAPI.dates[0].games[0].status.statusCode === "PW" || schedAPI.dates[0].games[0].status.abstractGameCode === "L") {
                     gamePk = schedAPI.dates[0]?.games[0]?.gamePk;
                     game = schedAPI.dates[0].games[0];
@@ -353,8 +353,10 @@ async function loadGameData() {
                     gamePk = schedAPI.dates[0]?.games[1]?.gamePk || null;
                     game = schedAPI.dates[0].games[1];
             }
+            } else {
+                gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;
+                game = schedAPI.dates[0].games[0];
             }
-        /*gamePk = schedAPI.dates[0]?.games[0]?.gamePk || null;*/
     }
 
     /*good place to determine if game is today, in the past or the future from the schedule page*/
@@ -675,7 +677,10 @@ function buildLineScore(lineData, boxData) {
         } 
         }
     
-    if (ppCompareDate > today) {
+    /* to fix probable pitchers not showing up today only show if the game code is appropriate (not sure what that is)
+    need to determine when starting lineups are announced, when they are then take the probable starters down*/
+
+        if (ppCompareDate > today) {
         document.getElementById("boxscore").innerHTML = "<div class='score'><p>Probable Starting Pitchers</p></div>";
         document.getElementById("boxscore").innerHTML += `
             <div class="inning">
