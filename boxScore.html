@@ -680,7 +680,7 @@ function buildLineScore(lineData, boxData) {
     /* to fix probable pitchers not showing up today only show if the game code is appropriate (not sure what that is)
     need to determine when starting lineups are announced, when they are then take the probable starters down*/
 
-        if (ppCompareDate >= today) {
+        if (ppCompareDate > today) {
         document.getElementById("boxscore").innerHTML = "<div class='score'><p>Probable Starting Pitchers</p></div>";
         document.getElementById("boxscore").innerHTML += `
             <div class="inning">
