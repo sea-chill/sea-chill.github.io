@@ -156,16 +156,26 @@ async function loadScheduleData() {
             /*check to see if this game has been reschedule and pass result (0=no; 1=yes) to boxscore*/
 
             let currentDate = new Date(); /*fix this so the comparison below is just on the m/d/y and not with the time*/
+            let formattedCurrentDate = currentDate.toISOString().split('T')[0]; // Get the date part in YYYY-MM-DD format
             let philsProbablePitcher = "TBD";
             let opponentProbablePitcher = "TBD";
             /*fix this if then else statement to account for games that are postponed, etc.  
             resultScore is showing up as 'undefined'.  Maybe show as postponed or 'PP"
             For postponed games the abstract game code is 'F'.  Coded game code is 'D'*/
 
-            if (gameDate > currentDate) {
+            if (compareDate >= formattedCurrentDate) {
                 record = "N/A";
                 philsRecord = "N/A";
                 resultScore = "TBD";
+                if (compareDate == formattedCurrentDate) {
+                    if (isHome) {
+                        philsRecord = `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}`;
+                        record = `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
+                    } else {
+                        philsRecord = `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
+                        record = `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}`;
+                    }
+                }
                 if (isHome) {
                     philsProbablePitcher = game.teams.home.probablePitcher ? game.teams.home.probablePitcher.fullName : "TBD";
                     opponentProbablePitcher = game.teams.away.probablePitcher ? game.teams.away.probablePitcher.fullName : "TBD";
