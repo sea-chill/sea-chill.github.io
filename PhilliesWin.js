@@ -319,6 +319,7 @@ async function runDailyReport() {
           /*console.log("Phillies have a game in progress right now");*/
           break;
         case "Postponed":
+        case "Delayed Start":
           if (gameCount == 2 && i == 0) {
             let philliesResultElementOne = document.getElementById("phillies-gameOne-result"); 
             philliesResultElementOne.textContent = "Game 1 has been postponed";
