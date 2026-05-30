@@ -129,8 +129,8 @@
 
 const params = new URLSearchParams(window.location.search);
 let schedGamePk = params.get("gamePk");
-const philsProbablePitcher = params.get("philsProbablePitcher");
-const opponentProbablePitcher = params.get("opponentProbablePitcher");
+let philsProbablePitcher = params.get("philsProbablePitcher");
+let opponentProbablePitcher = params.get("opponentProbablePitcher");
 let rescheduleFlag = params.get("rescheduleFlag");
 
 const today = new Date();
@@ -305,7 +305,7 @@ async function loadGameData() {
         gameDay = localDate;
     }
 
-    const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${gameDay}`;
+    const url = `https://statsapi.mlb.com/api/v1/schedule?teamId=143&sportId=1&date=${gameDay}&hydrate=probablePitcher`;
     const res = await fetch(url);
     const schedAPI = await res.json();
 
@@ -670,17 +670,48 @@ function buildLineScore(lineData, boxData) {
         }
     }
 
+    /* the if statement below runs is the game is not in the future which means that the box score routine is 
+    called from the schedule page.  compareDate is a variable that is set if a future date is sent from
+    the schedule page, otherwise it is null */
+
+    /*another fix is to hydrate the api call to get the probable starting pitchers, then use that below instead of 
+    'game scheduled for later today'*/
+
+    let isHome;
     if (compareDate === null) {
         if (lineData.innings.length === 0) {
+            isHome = schedAPI.dates[0].games[0].teams.home.team.id === 143;
+            if (isHome) {
+                    philsProbablePitcher = schedAPI.dates[0].games[0].teams.home.probablePitcher ? schedAPI.dates[0].games[0].teams.home.probablePitcher.fullName : "TBD";
+                    opponentProbablePitcher = schedAPI.dates[0].games[0].teams.away.probablePitcher ? schedAPI.dates[0].games[0].teams.away.probablePitcher.fullName : "TBD";
+                } else {
+                    philsProbablePitcher = schedAPI.dates[0].games[0].teams.away.probablePitcher ? schedAPI.dates[0].games[0].teams.away.probablePitcher.fullName : "TBD";
+                    opponentProbablePitcher = schedAPI.dates[0].games[0].teams.home.probablePitcher ? schedAPI.dates[0].games[0].teams.home.probablePitcher.fullName : "TBD";
+                }
             document.getElementById("boxscore").innerHTML = "<div class='phillies-color'><p>Game scheduled for later today</p></div>";
+            document.getElementById("boxscore").innerHTML = "<div class='score'><p>Probable Starting Pitchers</p></div>";
+            document.getElementById("boxscore").innerHTML += `
+                <div class="inning">
+                    <div><strong>${phillies.team.name}:</strong> ${philsProbablePitcher || "TBD"}</div>
+                    <div><strong>${opponent.team.name}:</strong> ${opponentProbablePitcher || "TBD"}</div>
+                </div>
+            `;
             return;
-        } 
         }
+    }
     
     /* to fix probable pitchers not showing up today only show if the game code is appropriate (not sure what that is)
-    need to determine when starting lineups are announced, when they are then take the probable starters down*/
+    need to determine when starting lineups are announced, when they are then take the probable starters down
+    NOT FIXED ON 5/22 by adding '=' to ppCompareDate and today comparison.  Adding the '=' means the  boxscore will not
+    be shown for today's game.  this works for looking at boxscore from the 
+    schedule page */
 
-        if (ppCompareDate > today) {
+    let booleanGameStatus = "";    
+    if (schedAPI.dates[0].games[0].status.abstractGameCode === "L" || schedAPI.dates[0].games[0].status.statusCode === "F" || schedAPI.dates[0].games[0].status.statusCode === "O") {
+        booleanGameStatus == false;
+    } else booleanGameStatus = true;
+
+    if (ppCompareDate > today || booleanGameStatus) {
         document.getElementById("boxscore").innerHTML = "<div class='score'><p>Probable Starting Pitchers</p></div>";
         document.getElementById("boxscore").innerHTML += `
             <div class="inning">

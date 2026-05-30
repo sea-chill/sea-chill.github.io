@@ -102,7 +102,10 @@ async function loadScheduleData() {
 
             let gameDate = new Date(game.gameDate);
 
-            let compareDate = gameDate.toISOString().split('T')[0]; // Get the date part in YYYY-MM-DD format
+            /*let compareDate = gameDate.toISOString().split('T')[0]; // Get the date part in YYYY-MM-DD format
+            this breaks when the start time in UTC is the next day, like for west coast games (example 5-26 in San Diego)*/
+
+            let compareDate = game.officialDate;
 
             let gamePk = game.gamePk; // Get the gamePk for the current game
 
@@ -191,7 +194,7 @@ async function loadScheduleData() {
                     : `${game.teams.home.score}-${game.teams.away.score}`;
                 /*resultScore = `${game.teams.home.score}-${game.teams.away.score}` : "PPD";*/
             } else {
-                record = game.teams.home.team.id === 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
+                record = game.teams.home.team.id !== 143 ?`${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
                 philsRecord = game.teams.home.team.id === 143 ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}` : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
                 resultScore = "TBD";
             }
