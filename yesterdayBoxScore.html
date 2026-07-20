@@ -133,7 +133,8 @@ let philsProbablePitcher = params.get("philsProbablePitcher");
 let opponentProbablePitcher = params.get("opponentProbablePitcher");
 let rescheduleFlag = params.get("rescheduleFlag");
 
-const today = new Date();
+let today = new Date();
+today.setDate(today.getDate() - 1)
 today.setHours(0, 0, 0, 0); /* Set time to midnight to compare only the date portion*/
 
 const compareDate = params.get("comp");
