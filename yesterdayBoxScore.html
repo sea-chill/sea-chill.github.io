@@ -320,13 +320,13 @@ async function loadGameData() {
     1. No game today - display message that there is no game and hide all other info on the page
     2. Game today
     3. Game in the past
-    4. Game in the future 
+    4. Game in the future
     */
 
     if (!schedAPI.dates || schedAPI.dates.length === 0) {
         let pageTitle = "";
         document.getElementById("pageTitle").innerText = pageTitle;
-        document.getElementById("boxscore").innerHTML = "<div class='game-Status'><p>The Phillies did not play yesterdayy</p></div>";
+        document.getElementById("boxscore").innerHTML = "<div class='game-Status'><p>The Phillies did not play yesterday</p></div>";
         return;
     }
 
