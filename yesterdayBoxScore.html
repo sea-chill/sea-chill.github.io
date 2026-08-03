@@ -711,7 +711,7 @@ function buildLineScore(lineData, boxData) {
     schedule page */
 
     let booleanGameStatus = "";    
-    if (schedAPI.dates[0].games[0].status.abstractGameCode === "L" || schedAPI.dates[0].games[0].status.statusCode === "F" || schedAPI.dates[0].games[0].status.statusCode === "O") {
+    if (schedAPI.dates[0].games[0].status.abstractGameCode === "L" || schedAPI.dates[0].games[0].status.statusCode === "F" || schedAPI.dates[0].games[0].status.statusCode === "O" || schedAPI.dates[0].games[0].status.statusCode === "FR") {
         booleanGameStatus == false;
     } else booleanGameStatus = true;
 
