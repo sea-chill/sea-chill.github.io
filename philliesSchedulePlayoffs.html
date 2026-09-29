@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="PhilsIcon.png"> <!-- Favicon link -->
+
+    <title>Phillies Schedule</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(255, 253, 208); /*creme color*/
+            border: 20px, solid rgb(0, 45, 114); /*phillies red border*/
+            color : rgb(232, 24, 40); /*phillies red color*/
+            padding: 20px;
+            text-align: center;
+        }
+
+        .schedule-Container {
+            display: flex;
+            justify-content: center;
+            gap:60px;
+            overflow-x: auto; /* Adds horizontal scrolling only when the content overflows */
+        }
+
+        .schedule-Table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .pitcher-Table {
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .home {
+            color:rgb(232, 24, 40); /*phillies red color for home games in schedule*/
+        }
+        .away {
+            color:rgb(0, 45, 114); /*phillies blue color for away games in schedule*/
+        }
+
+        .playoff-header {
+            background-color: rgb(0, 45, 114);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .playoff-header th {
+            padding: 10px;
+            border-top: 4px solid rgb(232, 24, 40);
+            border-bottom: 4px solid rgb(232, 24, 40);
+        }
+
+        .playoff-row {
+            background-color: rgb(255, 248, 248);
+        }
+
+    </style>
+ </head>
+
+<body>
+
+    <button onclick="window.location.href='index.html'">
+    Return to Did the Phillies Win Today?
+    </button>
+
+    <h1>2026 Philadelphia Phillies Schedule</h1>
+    <!-- <p class = "h2" id="philsRecord"></p> -->
+
+    <div class="schedule-Container">
+        <table class="schedule-Table">
+            <thead>
+                <tr>
+                <th>Day</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Opponent</th>
+                <th>Opponent Record</th>
+                <th>Phillies Record</th>
+                <th>Home/Away</th>
+                <th>Result / Score</th>
+                </tr>
+            </thead>
+            <!-- old code <tbody id="scheduleTable"></tbody>-->
+            <tbody id="scheduleTable">
+                <!-- Postseason schedules will be inserted here first -->
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <button onclick="window.location.href='index.html'">
+    Return to Did the Phillies Win Today?
+    </button>
+
+<script>
+
+async function loadScheduleData() {
+
+    /*
+       R = Regular Season
+       F = Wild Card Series
+       D = Division Series
+       L = League Championship Series
+       W = World Series
+    */
+
+    const url =`https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=143&startDate=2026-02-21&endDate=2026-11-30&gameTypes=R,F,D,L,W&hydrate=probablePitcher`;
+
+    const res = await fetch(url);
+    const schedAPI = await res.json();
+
+    let rescheduleFlag = 0;
+
+    if (!schedAPI.dates) {
+        return;
+    }
+
+    const games = schedAPI.dates.flatMap(date => date.games);
+
+
+    /* -----------------------------------------
+       SEPARATE REGULAR SEASON AND POSTSEASON
+    ----------------------------------------- */
+
+    const regularSeasonGames = games.filter(
+        game => game.gameType === "R"
+    );
+
+    const postseasonGames = games.filter(
+        game => ["F", "D", "L", "W"].includes(game.gameType)
+    );
+
+
+    /* -----------------------------------------
+       FUNCTION TO CREATE A GAME ROW
+    ----------------------------------------- */
+
+    function createGameRow(game) {
+
+        let gameDate = new Date(game.gameDate);
+
+        let compareDate = game.officialDate;
+
+        let gamePk = game.gamePk;
+
+        let day = gameDate.toLocaleDateString(
+            'en-US',
+            { weekday: 'long' }
+        );
+
+        let date = gameDate.toLocaleDateString(
+            'en-US',
+            { month: 'short', day: 'numeric' }
+        );
+
+        let time = gameDate.toLocaleTimeString(
+            'en-US',
+            {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            }
+        );
+
+
+        /* -----------------------------------------
+           PHILLIES / OPPONENT
+        ----------------------------------------- */
+
+        const isHome = game.teams.home.team.id === 143;
+
+        let opponent = isHome
+            ? game.teams.away.team.name
+            : game.teams.home.team.name;
+
+
+        /* -----------------------------------------
+           RECORDS
+        ----------------------------------------- */
+
+        let record = "N/A";
+        let philsRecord = "N/A";
+
+        if (game.teams.home.leagueRecord &&
+            game.teams.away.leagueRecord) {
+
+            record = !isHome
+                ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}`
+                : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
+
+            philsRecord = isHome
+                ? `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}`
+                : `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
+        }
+
+
+        /* -----------------------------------------
+           HOME / AWAY
+        ----------------------------------------- */
+
+        let homeAway = isHome ? "Home" : "Away";
+
+
+        /* -----------------------------------------
+           RESULT
+        ----------------------------------------- */
+
+        let result = "--";
+        let resultScore = "TBD";
+
+        if (game.status.abstractGameCode === "F") {
+
+            const philliesScore = isHome
+                ? game.teams.home.score
+                : game.teams.away.score;
+
+            const opponentScore = isHome
+                ? game.teams.away.score
+                : game.teams.home.score;
+
+            if (philliesScore > opponentScore) {
+                result = "W";
+            }
+            else if (philliesScore < opponentScore) {
+                result = "L";
+            }
+            else {
+                result = "--";
+            }
+
+            resultScore = game.status.codedGameState === "D"
+                ? "PPD"
+                : `${game.teams.home.score}-${game.teams.away.score}`;
+        }
+
+
+        /* -----------------------------------------
+           CURRENT DATE
+        ----------------------------------------- */
+
+        let currentDate = new Date();
+
+        let formattedCurrentDate =
+            currentDate.toISOString().split('T')[0];
+
+
+        let philsProbablePitcher = "TBD";
+        let opponentProbablePitcher = "TBD";
+
+
+        /* -----------------------------------------
+           FUTURE GAME
+        ----------------------------------------- */
+
+        if (compareDate >= formattedCurrentDate) {
+
+            record = "N/A";
+            philsRecord = "N/A";
+            resultScore = "TBD";
+
+
+            /*
+               If the game is today, show the available
+               records from the API.
+            */
+
+            if (compareDate === formattedCurrentDate) {
+
+                if (isHome) {
+
+                    philsRecord =
+                        `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}`;
+
+                    record =
+                        `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
+
+                } else {
+
+                    philsRecord =
+                        `${game.teams.away.leagueRecord.wins} - ${game.teams.away.leagueRecord.losses}`;
+
+                    record =
+                        `${game.teams.home.leagueRecord.wins} - ${game.teams.home.leagueRecord.losses}`;
+                }
+            }
+
+
+            /* Probable pitchers */
+
+            if (isHome) {
+
+                philsProbablePitcher =
+                    game.teams.home.probablePitcher
+                        ? game.teams.home.probablePitcher.fullName
+                        : "TBD";
+
+                opponentProbablePitcher =
+                    game.teams.away.probablePitcher
+                        ? game.teams.away.probablePitcher.fullName
+                        : "TBD";
+
+            } else {
+
+                philsProbablePitcher =
+                    game.teams.away.probablePitcher
+                        ? game.teams.away.probablePitcher.fullName
+                        : "TBD";
+
+                opponentProbablePitcher =
+                    game.teams.home.probablePitcher
+                        ? game.teams.home.probablePitcher.fullName
+                        : "TBD";
+            }
+
+        }
+
+
+        /* -----------------------------------------
+           RESULT LINK
+        ----------------------------------------- */
+
+        let totalResult = `${result} / ${resultScore}`;
+
+
+        /* Check for rescheduled game */
+
+        if (game.rescheduleDate) {
+            rescheduleFlag = 1;
+        } else {
+            rescheduleFlag = 0;
+        }
+
+
+        /* -----------------------------------------
+           CREATE ROW
+        ----------------------------------------- */
+
+        return `
+            <tr class="${game.gameType !== "R" ? "playoff-row" : ""}">
+
+                <td>${day}</td>
+
+                <td>${date}</td>
+
+                <td>${time}</td>
+
+                <td>${opponent}</td>
+
+                <td>${record}</td>
+
+                <td>${philsRecord}</td>
+
+                <td>${homeAway}</td>
+
+                <td>
+                    <a href="boxScore.html?rescheduleFlag=${rescheduleFlag}&gamePk=${gamePk}&philsProbablePitcher=${encodeURIComponent(philsProbablePitcher)}&opponentProbablePitcher=${encodeURIComponent(opponentProbablePitcher)}&comp=${encodeURIComponent(compareDate)}">
+                        ${totalResult}
+                    </a>
+                </td>
+
+            </tr>
+        `;
+    }
+
+
+    /* -----------------------------------------
+       ADD POSTSEASON FIRST
+    ----------------------------------------- */
+
+    const playoffOrder = ["F", "D", "L", "W"];
+
+
+    playoffOrder.forEach(round => {
+
+        const roundGames = postseasonGames.filter(
+            game => game.gameType === round
+        );
+
+
+        /*
+           Only display the round if the Phillies
+           have games in that round.
+        */
+
+        if (roundGames.length > 0) {
+
+            addPlayoffHeader(
+                playoffRoundNames[round]
+            );
+
+
+            roundGames
+                .sort(
+                    (a, b) =>
+                        new Date(a.gameDate) -
+                        new Date(b.gameDate)
+                )
+                .forEach(game => {
+
+                    const row = createGameRow(game);
+
+                    document
+                        .getElementById("scheduleTable")
+                        .insertAdjacentHTML(
+                            "beforeend",
+                            row
+                        );
+                });
+        }
+
+    });
+
+
+    /* -----------------------------------------
+       REGULAR SEASON HEADER
+    ----------------------------------------- */
+
+    const regularSeasonHeader = `
+        <tr class="playoff-header">
+            <th colspan="8">Regular Season</th>
+        </tr>
+    `;
+
+    document
+        .getElementById("scheduleTable")
+        .insertAdjacentHTML(
+            "beforeend",
+            regularSeasonHeader
+        );
+
+
+    /* -----------------------------------------
+       ADD REGULAR SEASON
+    ----------------------------------------- */
+
+    regularSeasonGames
+        .sort(
+            (a, b) =>
+                new Date(a.gameDate) -
+                new Date(b.gameDate)
+        )
+        .forEach(game => {
+
+            const row = createGameRow(game);
+
+            document
+                .getElementById("scheduleTable")
+                .insertAdjacentHTML(
+                    "beforeend",
+                    row
+                );
+        });
+}
+
+
+/* -----------------------------------------
+   LOAD THE SCHEDULE
+----------------------------------------- */
+
+/*loadScheduleData();*/
+
+
+/* -----------------------------------------
+   POSTSEASON ROUND NAMES
+----------------------------------------- */
+
+const playoffRoundNames = {
+    F: "Wild Card Series",
+    D: "National League Division Series",
+    L: "National League Championship Series",
+    W: "World Series"
+};
+
+
+/* -----------------------------------------
+   ADD A POSTSEASON ROUND HEADER
+----------------------------------------- */
+
+function addPlayoffHeader(roundName) {
+
+    const headerRow = `
+        <tr class="playoff-header">
+            <th colspan="8">${roundName}</th>
+        </tr>
+    `;
+
+    document
+        .getElementById("scheduleTable")
+        .insertAdjacentHTML("beforeend", headerRow);
+}
+
+
+loadScheduleData();
+
+</script>
+
+</body>
+</html>

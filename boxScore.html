@@ -171,7 +171,7 @@ async function wlsRecords(winnerID, loserID, saveID) {
 
     if (winnerID) {
         /*const winnerURL = `https://statsapi.mlb.com/api/v1/people/${winnerID}/stats?stats=season&season=2026&gameType=R`;*/
-        const winnerURL = `https://statsapi.mlb.com/api/v1/people/${winnerID}/stats?stats=byDateRange&startDate=${startDate}&endDate=${endDate}&gameType=R`;
+        const winnerURL = `https://statsapi.mlb.com/api/v1/people/${winnerID}/stats?stats=byDateRange&startDate=${startDate}&endDate=${endDate}&gameTypes=R,F,D,L,W`;
         const winnerRes = await fetch(winnerURL);
         const winnerStatsData = await winnerRes.json();
         winnerRecord = `${winnerStatsData.stats[0].splits[0].stat.wins} - ${winnerStatsData.stats[0].splits[0].stat.losses}`;
@@ -179,7 +179,7 @@ async function wlsRecords(winnerID, loserID, saveID) {
 
     if (loserID) {
         /*const loserURL = `https://statsapi.mlb.com/api/v1/people/${loserID}/stats?stats=season&season=2026&gameType=R`;*/
-        const loserURL = `https://statsapi.mlb.com/api/v1/people/${loserID}/stats?stats=byDateRange&startDate=${startDate}&endDate=${endDate}&gameType=R`;
+        const loserURL = `https://statsapi.mlb.com/api/v1/people/${loserID}/stats?stats=byDateRange&startDate=${startDate}&endDate=${endDate}&gameType=R,F,D,L,W`;
         const loserRes = await fetch(loserURL);
         const loserStatsData = await loserRes.json();
         loserRecord = `${loserStatsData.stats[0].splits[0].stat.wins} - ${loserStatsData.stats[0].splits[0].stat.losses}`  ;
@@ -187,7 +187,7 @@ async function wlsRecords(winnerID, loserID, saveID) {
 
     if (saveID) {
         /*const saveURL = `https://statsapi.mlb.com/api/v1/people/${saveID}/stats?stats=season&season=2026&gameType=R`;*/
-        const saveURL = `https://statsapi.mlb.com/api/v1/people/${saveID}/stats?stats=byDateRange&startDate=${startDate}&endDate=${endDate}&gameType=R`;
+        const saveURL = `https://statsapi.mlb.com/api/v1/people/${saveID}/stats?stats=byDateRange&startDate=${startDate}&endDate=${endDate}&gameTypes=R,F,D,L,W`;
         const saveRes = await fetch(saveURL);
         const saveStatsData = await saveRes.json();
         saves = `${saveStatsData.stats[0].splits[0].stat.saves}`;
